@@ -1,6 +1,8 @@
 package com.kyant.glass
 
 import android.os.Bundle
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.LocalIndication
@@ -62,6 +64,11 @@ class MainActivity : ComponentActivity() {
                     Preview(previewState)
                 }
             }
+        }
+
+        window.decorView.windowInsetsController?.let { controller ->
+            controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 }
