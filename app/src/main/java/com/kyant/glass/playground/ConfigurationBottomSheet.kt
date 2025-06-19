@@ -6,12 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BlurOn
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.Opacity
-import androidx.compose.material.icons.outlined.Radar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
@@ -19,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kyant.expressa.components.iconbutton.IconButton
@@ -56,7 +50,7 @@ fun ConfigurationBottomSheet(
         ) {
             Text(
                 when (state.configurationMode) {
-                    ConfigurationMode.Color -> stringResource(R.string.color)
+                    ConfigurationMode.Color -> stringResource(R.string.colors)
                     ConfigurationMode.Advanced -> stringResource(R.string.advanced_settings)
                     null -> ""
                 },
@@ -68,7 +62,7 @@ fun ConfigurationBottomSheet(
                 { state.configurationMode = null }
             ) {
                 Icon(
-                    rememberVectorPainter(Icons.Outlined.Close),
+                    painterResource(R.drawable.close_24px),
                     stringResource(R.string.close)
                 )
             }
@@ -85,19 +79,19 @@ fun ConfigurationBottomSheet(
                     SliderChip(
                         state.blurRadius,
                         stringResource(R.string.blur_radius),
-                        { Icon(rememberVectorPainter(Icons.Outlined.BlurOn)) },
+                        { Icon(painterResource(R.drawable.lens_blur_24px)) },
                         Modifier.fillMaxWidth()
                     )
                     SliderChip(
                         state.opacity,
                         stringResource(R.string.opacity),
-                        { Icon(rememberVectorPainter(Icons.Outlined.Opacity)) },
+                        { Icon(painterResource(R.drawable.opacity_24px)) },
                         Modifier.fillMaxWidth()
                     )
                     SliderChip(
                         state.chromaMultiplier,
                         stringResource(R.string.chroma_multiplier),
-                        { Icon(rememberVectorPainter(Icons.Outlined.ColorLens)) },
+                        { Icon(painterResource(R.drawable.palette_24px)) },
                         Modifier.fillMaxWidth()
                     )
                 }
@@ -106,7 +100,7 @@ fun ConfigurationBottomSheet(
                     SliderChip(
                         state.eccentricFactor,
                         stringResource(R.string.eccentric_factor),
-                        { Icon(rememberVectorPainter(Icons.Outlined.Radar)) },
+                        { Icon(painterResource(R.drawable.all_out_24px)) },
                         Modifier.fillMaxWidth()
                     )
                 }

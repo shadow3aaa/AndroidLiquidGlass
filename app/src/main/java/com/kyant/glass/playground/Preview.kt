@@ -326,8 +326,8 @@ fun Preview(state: PreviewState) {
                 }
                 .layout { measurable, constraints ->
                     val size = state.size.toSize().roundToIntSize()
-                    val width = size.width.coerceAtMost(constraints.maxWidth)
-                    val height = size.height.coerceAtMost(constraints.maxHeight)
+                    val width = size.width.fastCoerceAtMost(constraints.maxWidth)
+                    val height = size.height.fastCoerceAtMost(constraints.maxHeight)
                     val placeable = measurable.measure(Constraints.fixed(width, height))
 
                     layout(width, height) {

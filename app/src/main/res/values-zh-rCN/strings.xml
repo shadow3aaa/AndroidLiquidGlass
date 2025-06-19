@@ -6,7 +6,7 @@
     <string name="blur_radius">模糊半径</string>
     <string name="chroma_multiplier">彩度增强系数</string>
     <string name="close">关闭</string>
-    <string name="color">颜色</string>
+    <string name="colors">颜色</string>
     <string name="corner_radius">圆角半径</string>
     <string name="dispersion_height">色散高度</string>
     <string name="eccentric_factor">离心系数</string>

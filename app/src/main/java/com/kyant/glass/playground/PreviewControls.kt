@@ -12,20 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Height
-import androidx.compose.material.icons.outlined.Lens
-import androidx.compose.material.icons.outlined.RoundedCorner
-import androidx.compose.material.icons.outlined.WaterDrop
-import androidx.compose.material.icons.outlined.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -44,7 +38,7 @@ fun PreviewControls(
     Box(modifier.fillMaxSize()) {
         // width
         Icon(
-            rememberVectorPainter(Icons.Outlined.Height),
+            painterResource(R.drawable.height_24px),
             stringResource(R.string.width),
             onTertiaryContainer,
             Modifier
@@ -80,7 +74,7 @@ fun PreviewControls(
 
         // height
         Icon(
-            rememberVectorPainter(Icons.Outlined.Height),
+            painterResource(R.drawable.height_24px),
             stringResource(R.string.height),
             onTertiaryContainer,
             Modifier
@@ -117,7 +111,7 @@ fun PreviewControls(
             null,
             {
                 Icon(
-                    rememberVectorPainter(Icons.Outlined.RoundedCorner),
+                    painterResource(R.drawable.rounded_corner_24px),
                     stringResource(R.string.corner_radius),
                     Modifier.graphicsLayer {
                         rotationX = 180f
@@ -155,19 +149,19 @@ fun PreviewControls(
             SliderChip(
                 state.dispersionHeight,
                 stringResource(R.string.dispersion_height),
-                { Icon(rememberVectorPainter(Icons.Outlined.Lens)) },
+                { Icon(painterResource(R.drawable.star_shine_24px)) },
                 Modifier.fillMaxWidth()
             )
             SliderChip(
                 state.refractionAmount,
                 stringResource(R.string.refraction_amount),
-                { Icon(rememberVectorPainter(Icons.Outlined.WaterDrop)) },
+                { Icon(painterResource(R.drawable.center_focus_weak_24px)) },
                 Modifier.fillMaxWidth()
             )
             SliderChip(
                 state.refractionHeight,
                 stringResource(R.string.refraction_height),
-                { Icon(rememberVectorPainter(Icons.Outlined.Window)) },
+                { Icon(painterResource(R.drawable.water_lux_24px)) },
                 Modifier.fillMaxWidth()
             )
         }

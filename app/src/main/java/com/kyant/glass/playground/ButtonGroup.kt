@@ -10,19 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Photo
-import androidx.compose.material.icons.outlined.Restore
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kyant.expressa.components.iconbutton.IconButton
@@ -54,7 +47,7 @@ fun ButtonGroup(
             )
         ) {
             Icon(
-                rememberVectorPainter(Icons.Outlined.Restore),
+                painterResource(R.drawable.reset_settings_24px),
                 stringResource(R.string.reset),
             )
         }
@@ -76,9 +69,9 @@ fun ButtonGroup(
                         else IconButtonColors.tonal()
                 ) {
                     Icon(
-                        rememberVectorPainter(
-                            if (state.displayControls) Icons.Outlined.Visibility
-                            else Icons.Outlined.VisibilityOff
+                        painterResource(
+                            if (state.displayControls) R.drawable.visibility_24px
+                            else R.drawable.visibility_off_24px
                         ),
                         stringResource(
                             if (state.displayControls) R.string.hide_controls
@@ -92,8 +85,8 @@ fun ButtonGroup(
                     colors = IconButtonColors.tonal()
                 ) {
                     Icon(
-                        rememberVectorPainter(Icons.Outlined.Palette),
-                        stringResource(R.string.color)
+                        painterResource(R.drawable.colors_24px),
+                        stringResource(R.string.colors)
                     )
                 }
                 IconButton(
@@ -105,7 +98,7 @@ fun ButtonGroup(
                     )
                 ) {
                     Icon(
-                        rememberVectorPainter(Icons.Outlined.Build),
+                        painterResource(R.drawable.build_24px),
                         stringResource(R.string.advanced_settings)
                     )
                 }
@@ -131,7 +124,7 @@ fun ButtonGroup(
             sizes = IconButtonSizes.medium
         ) {
             Icon(
-                rememberVectorPainter(Icons.Outlined.Photo),
+                painterResource(R.drawable.add_photo_alternate_24px),
                 stringResource(R.string.pick_an_image)
             )
         }
