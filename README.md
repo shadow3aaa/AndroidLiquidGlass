@@ -19,3 +19,7 @@ Test glass area size: 300 x 300, corner radius: 30
 | ![](./artworks/inner_refraction/ios/-60%2020.png) | ![](./artworks/inner_refraction/android/-60%2020.png) |
 
 See [complete comparisons](./docs/Comparisons.md) for more.
+
+## Special thanks
+
+- [GlassExplorer](https://github.com/ktiays/GlassExplorer)
