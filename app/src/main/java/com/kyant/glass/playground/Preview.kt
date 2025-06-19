@@ -97,12 +97,12 @@ fun Preview(state: PreviewState) {
         return a + (b - a) * t;
     }
     
-    float2 normalToTangent(float2 normal) {
-        return float2(normal.y, -normal.x);
-    }
-    
     float circleMap(float x) {
         return 1.0 - sqrt(1.0 - x * x);
+    }
+    
+    float2 normalToTangent(float2 normal) {
+        return float2(normal.y, -normal.x);
     }
     
     float sdRectangle(float2 coord, float2 halfSize) {
@@ -112,30 +112,30 @@ fun Preview(state: PreviewState) {
         return outside + inside;
     }
     
-    float sdRoundedRectangle(float2 coord, float2 halfSize, float radius) {
-        return sdRectangle(coord, halfSize) - radius;
+    float sdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        return sdRectangle(coord, innerHalfSize) - cornerRadius;
     }
     
     const float eps = 0.5;
     const float2 epsX = float2(eps, 0.0);
     const float2 epsY = float2(0.0, eps);
     
-    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float radius) {
-        float dx = sdRoundedRectangle(coord + epsX, halfSize, radius)
-            - sdRoundedRectangle(coord - epsX, halfSize, radius);
-        float dy = sdRoundedRectangle(coord + epsY, halfSize, radius)
-            - sdRoundedRectangle(coord - epsY, halfSize, radius);
+    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float dx = sdRoundedRectangle(coord + epsX, halfSize, cornerRadius)
+            - sdRoundedRectangle(coord - epsX, halfSize, cornerRadius);
+        float dy = sdRoundedRectangle(coord + epsY, halfSize, cornerRadius)
+            - sdRoundedRectangle(coord - epsY, halfSize, cornerRadius);
         return normalize(float2(dx, dy));
     }
     
     half4 main(float2 coord) {
         float2 halfSize = size * 0.5;
         float2 centeredCoord = coord - halfSize;
-        float2 innerHalfSize = halfSize - float2(cornerRadius);
-        float sd = sdRoundedRectangle(centeredCoord, innerHalfSize, cornerRadius);
+        float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         
         if (sd < 0.0 && -sd < dispersionHeight) {
-            float2 normal = gradSdRoundedRectangle(centeredCoord, innerHalfSize, cornerRadius);
+            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
             float2 tangent = normalToTangent(normal);
             
             half4 dispersedColor = half4(0.0);
@@ -238,33 +238,37 @@ fun Preview(state: PreviewState) {
         return outside + inside;
     }
     
-    float sdRoundedRectangle(float2 coord, float2 halfSize, float radius) {
-        return sdRectangle(coord, halfSize) - radius;
+    float sdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        return sdRectangle(coord, innerHalfSize) - cornerRadius;
     }
     
     const float eps = 0.5;
     const float2 epsX = float2(eps, 0.0);
     const float2 epsY = float2(0.0, eps);
     
-    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float radius) {
-        float dx = sdRoundedRectangle(coord + epsX, halfSize, radius)
-            - sdRoundedRectangle(coord - epsX, halfSize, radius);
-        float dy = sdRoundedRectangle(coord + epsY, halfSize, radius)
-            - sdRoundedRectangle(coord - epsY, halfSize, radius);
+    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float dx = sdRoundedRectangle(coord + epsX, halfSize, cornerRadius)
+            - sdRoundedRectangle(coord - epsX, halfSize, cornerRadius);
+        float dy = sdRoundedRectangle(coord + epsY, halfSize, cornerRadius)
+            - sdRoundedRectangle(coord - epsY, halfSize, cornerRadius);
         return normalize(float2(dx, dy));
     }
     
     half4 main(float2 coord) {
         float2 halfSize = size * 0.5;
         float2 centeredCoord = coord - halfSize;
-        float2 innerHalfSize = halfSize - float2(cornerRadius);
-        float sd = sdRoundedRectangle(centeredCoord, innerHalfSize, cornerRadius);
+        float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         
         if (sd < 0.0 && -sd < refractionHeight) {
-            float2 normal = gradSdRoundedRectangle(centeredCoord, innerHalfSize, cornerRadius);
+            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius * 1.5);
             float refractedDistance = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
             float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
             float2 refractedCoord = coord + refractedDistance * refractedDirection;
+            if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
+                refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
+                return half4(0.0, 0.0, 0.0, 1.0);
+            }
             half4 refractedColor = image.eval(refractedCoord);
             return refractedColor;
         } else {

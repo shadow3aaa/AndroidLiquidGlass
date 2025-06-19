@@ -37,8 +37,9 @@ class PreviewState {
 
     var imageBitmap: ImageBitmap? by mutableStateOf(null)
 
-    val minSize: DpSize = DpSize(24.dp, 24.dp)
-    var size: DpSize by mutableStateOf(DpSize(200.dp, 200.dp))
+    val minSize: DpSize = DpSize(48.dp, 48.dp)
+    private val initialSize = DpSize(300.dp, 300.dp)
+    var size: DpSize by mutableStateOf(initialSize)
     var offset: Offset by mutableStateOf(Offset.Zero)
 
     val blurRadius: LiquidGlassParamValue<Dp> =
@@ -65,22 +66,22 @@ class PreviewState {
 
     val cornerRadius: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
-            initialValue = 32.dp,
+            initialValue = 30.dp,
             valueRange = { 0.dp..min(size.width, size.height) / 2 },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
     val refractionHeight: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
-            initialValue = 24.dp,
-            valueRange = { 0.dp..cornerRadius.value },
+            initialValue = 20.dp,
+            valueRange = { 0.dp..min(size.width, size.height) / 2 },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
     val refractionAmount: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
-            initialValue = (-32).dp,
-            valueRange = { (-512).dp..0.dp },
+            initialValue = (-60).dp,
+            valueRange = { -min(size.width, size.height)..min(size.width, size.height) },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
@@ -120,7 +121,7 @@ class PreviewState {
                         convertFromVector = { DpSize(it.v1.dp, it.v2.dp) },
                     ), size
                 )
-                    .animateTo(DpSize(200.dp, 200.dp), MotionScheme.slowSpatial()) {
+                    .animateTo(initialSize, MotionScheme.slowSpatial()) {
                         size = value
                     }
             }
