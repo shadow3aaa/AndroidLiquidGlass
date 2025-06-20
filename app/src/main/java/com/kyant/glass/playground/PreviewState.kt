@@ -34,6 +34,7 @@ class PreviewState {
     }
 
     var displayControls: Boolean by mutableStateOf(true)
+    var unsafeMode: Boolean by mutableStateOf(false)
 
     var imageBitmap: ImageBitmap? by mutableStateOf(null)
 
@@ -168,15 +169,18 @@ class PreviewState {
 
         private var state: T by mutableStateOf(initialValue)
 
+        val range: ClosedRange<T>
+            get() = if (unsafeMode) valueRange() else safeValueRange()
+
         val value: T by derivedStateOf {
-            state.coerceIn(valueRange())
+            state.coerceIn(range)
         }
 
         val unsafeValue: T
             get() = state
 
         val isValid: Boolean by derivedStateOf {
-            state in valueRange()
+            state in range
         }
 
         val isSafe: Boolean by derivedStateOf {
@@ -184,7 +188,7 @@ class PreviewState {
         }
 
         val progress: Float by derivedStateOf {
-            val range = valueRange()
+            val range = range
             if (range.isEmpty()) {
                 0f
             } else {
@@ -208,7 +212,7 @@ class PreviewState {
         }
 
         fun setValue(value: T) {
-            state = value.coerceIn(valueRange())
+            state = value.coerceIn(range)
         }
 
         fun setFloatValue(value: Float) {
@@ -216,7 +220,7 @@ class PreviewState {
         }
 
         fun setProgress(progress: Float) {
-            val range = valueRange()
+            val range = range
             val start = typeConverter.convertToVector(range.start).value
             val end = typeConverter.convertToVector(range.endInclusive).value
             setFloatValue(lerp(start, end, progress))

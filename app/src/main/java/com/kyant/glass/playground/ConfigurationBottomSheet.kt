@@ -1,5 +1,6 @@
 package com.kyant.glass.playground
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kyant.expressa.components.button.Button
 import com.kyant.expressa.components.iconbutton.IconButton
+import com.kyant.expressa.m3.motion.MotionScheme
 import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
@@ -97,6 +100,13 @@ fun ConfigurationBottomSheet(
                 }
 
                 ConfigurationMode.Advanced -> {
+                    Button({ state.unsafeMode = !state.unsafeMode }) {
+                        Text(
+                            if (state.unsafeMode) stringResource(R.string.disable_unsafe_mode)
+                            else stringResource(R.string.enable_unsafe_mode),
+                            Modifier.animateContentSize(MotionScheme.fastSpatial())
+                        )
+                    }
                     SliderChip(
                         state.bleedOpacity,
                         stringResource(R.string.bleed_opacity),

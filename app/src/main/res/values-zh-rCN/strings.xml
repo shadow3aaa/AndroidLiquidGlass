@@ -9,8 +9,10 @@
     <string name="close">关闭</string>
     <string name="colors">颜色</string>
     <string name="corner_radius">圆角半径</string>
+    <string name="disable_unsafe_mode">禁用不安全值</string>
     <string name="dispersion_height">色散高度</string>
     <string name="eccentric_factor">离心系数</string>
+    <string name="enable_unsafe_mode">启用不安全值</string>
     <string name="height">高度</string>
     <string name="hide_controls">隐藏控件</string>
     <string name="opacity">不透明度</string>
