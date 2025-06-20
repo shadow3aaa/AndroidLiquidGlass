@@ -255,12 +255,14 @@ fun Preview(state: PreviewState) {
     
     half4 main(float2 coord) {
         float2 halfSize = size * 0.5;
-        float sizeMinDimension = min(size.x, size.y);
         float2 centeredCoord = coord - halfSize;
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         
         if (sd < 0.0 && -sd < refractionHeight) {
-            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, min(cornerRadius * 1.5, sizeMinDimension));
+            float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
+            float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
+            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
+            
             float refractedDistance = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
             float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
             float2 refractedCoord = coord + refractedDistance * refractedDirection;
@@ -268,6 +270,7 @@ fun Preview(state: PreviewState) {
                 refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
                 return half4(0.0, 0.0, 0.0, 1.0);
             }
+            
             half4 refractedColor = image.eval(refractedCoord);
             return refractedColor;
         } else {
