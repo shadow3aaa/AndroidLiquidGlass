@@ -74,6 +74,31 @@ fun Preview(state: PreviewState) {
             contentScale = ContentScale.Crop
         )
 
+        val colorShaderUtils = """
+    const half3 rgbToY = half3(0.2126, 0.7152, 0.0722);
+    
+    half3 linearizedRgb(half3 rgb) {
+        return mix(rgb / 12.92, pow((rgb + 0.055) / 1.055, half3(2.4)), step(half3(0.04045), rgb));
+    }
+    
+    half3 delinearizedRgb(half3 rgb) {
+        return mix(rgb * 12.92, 1.055 * pow(rgb, half3(1.0 / 2.4)) - 0.055, step(half3(0.0031308), rgb));
+    }
+    
+    float luma(half4 color) {
+        return dot(linearizedRgb(color.rgb), rgbToY);
+    }
+    
+    half4 saturateColor(half4 color, float amount) {
+        half3 linearRgb = linearizedRgb(color.rgb);
+        float y = dot(linearRgb, rgbToY);
+        half3 gray = half3(y, y, y);
+        half3 adjustedLinear = mix(gray, linearRgb, amount);
+        half3 finalColor = delinearizedRgb(adjustedLinear);
+        return half4(finalColor, color.a);
+    }
+        """.trimIndent()
+
         // glass
         Box(
             Modifier
@@ -195,16 +220,11 @@ fun Preview(state: PreviewState) {
         
         uniform float chromaMultiplier;
         
-        const half3 rgbToY = half3(0.299, 0.587, 0.114);
-        
-        half3 saturateColor(half3 color, float amount) {
-            half luma = dot(color, rgbToY);
-            return clamp(mix(half3(luma), color, amount), 0.0, 1.0);
-        }
+        $colorShaderUtils
         
         half4 main(float2 coord) {
             half4 color = image.eval(coord);
-            color.rgb = saturateColor(color.rgb, chromaMultiplier);
+            color = saturateColor(color, chromaMultiplier);
             return color;
         }
     """
@@ -231,10 +251,6 @@ fun Preview(state: PreviewState) {
         return 1.0 - sqrt(1.0 - x * x);
     }
     
-    half3 linearizedRgb(half3 rgb) {
-        return mix(rgb / 12.92, pow((rgb + 0.055) / 1.055, half3(2.4)), step(half3(0.04045), rgb));
-    }
-    
     float sdRectangle(float2 coord, float2 halfSize) {
         float2 d = abs(coord) - halfSize;
         float outside = length(max(d, 0.0));
@@ -257,6 +273,8 @@ fun Preview(state: PreviewState) {
             return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
         }
     }
+    
+    $colorShaderUtils
     
     half4 main(float2 coord) {
         float2 halfSize = size * 0.5;
@@ -283,9 +301,11 @@ fun Preview(state: PreviewState) {
         }
         
         if (bleedOpacity > 0.0) {
-            float luma = dot(linearizedRgb(refractedColor.rgb), vec3(0.2126, 0.7152, 0.0722));
             half4 perspectiveColor = image.eval(coord);
-            half4 bleedColor = mix(refractedColor, perspectiveColor, bleedOpacity * circleMap(luma));
+            float refractedColorLuma = luma(refractedColor);
+            float perspectiveColorLuma = luma(perspectiveColor);
+            float bleedFraction = min(refractedColorLuma, 0.5 + perspectiveColorLuma);
+            half4 bleedColor = mix(refractedColor, perspectiveColor, 0.5 * bleedOpacity * bleedFraction);
             return bleedColor;
         } else {
             return refractedColor;

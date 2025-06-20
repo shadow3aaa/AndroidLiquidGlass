@@ -126,7 +126,9 @@ class PreviewState {
     }
 
     suspend fun reset() {
+        unsafeMode = false
         imageBitmap = null
+
         coroutineScope {
             launch {
                 AnimationState(
