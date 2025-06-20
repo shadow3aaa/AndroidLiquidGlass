@@ -32,12 +32,16 @@ Inner refraction height: 20
 | height | amount |                         iOS                          |                         Android                          |
 |:------:|:------:|:----------------------------------------------------:|:--------------------------------------------------------:|
 |  -200  |  150   | ![](../artworks/inner_refraction/ios/-200%20150.png) | ![](../artworks/inner_refraction/android/-200%20150.png) |
+|  -600  |  300   | ![](../artworks/inner_refraction/ios/-600%20300.png) | ![](../artworks/inner_refraction/android/-600%20300.png) |
 |  200   |  150   | ![](../artworks/inner_refraction/ios/200%20150.png)  | ![](../artworks/inner_refraction/android/200%20150.png)  |
+|  500   |  450   | ![](../artworks/inner_refraction/ios/500%20450.png)  | ![](../artworks/inner_refraction/android/500%20450.png)  |
 
-### Zero corner size
+### Corner size
 
-| height | amount |                            iOS                             |                            Android                             |
-|:------:|:------:|:----------------------------------------------------------:|:--------------------------------------------------------------:|
-|  -60   |   20   |  ![](../artworks/inner_refraction/ios/-60%2020%20zcs.png)  |  ![](../artworks/inner_refraction/android/-60%2020%20zcs.png)  |
-|  -200  |  150   | ![](../artworks/inner_refraction/ios/-200%20150%20zcs.png) | ![](../artworks/inner_refraction/android/-200%20150%20zcs.png) |
-|  200   |  150   | ![](../artworks/inner_refraction/ios/200%20150%20zcs.png)  | ![](../artworks/inner_refraction/android/200%20150%20zcs.png)  |
+| corner | height | amount |                             iOS                             |                             Android                             |
+|:------:|:------:|:------:|:-----------------------------------------------------------:|:---------------------------------------------------------------:|
+|   0    |  -60   |   20   |  ![](../artworks/inner_refraction/ios/-60%2020%20zcs.png)   |  ![](../artworks/inner_refraction/android/-60%2020%20zcs.png)   |
+|   0    |  -200  |  150   | ![](../artworks/inner_refraction/ios/-200%20150%20zcs.png)  | ![](../artworks/inner_refraction/android/-200%20150%20zcs.png)  |
+|   0    |  200   |  150   |  ![](../artworks/inner_refraction/ios/200%20150%20zcs.png)  |  ![](../artworks/inner_refraction/android/200%20150%20zcs.png)  |
+|  150   |  -200  |  150   | ![](../artworks/inner_refraction/ios/-200%20150%20fcs.png)  | ![](../artworks/inner_refraction/android/-200%20150%20fcs.png)  |
+|  300   |  -200  |  150   | ![](../artworks/inner_refraction/ios/-200%20150%202fcs.png) | ![](../artworks/inner_refraction/android/-200%20150%202fcs.png) |
