@@ -98,6 +98,13 @@ class PreviewState {
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
+    val bleedOpacity: LiquidGlassParamValue<Float> =
+        LiquidGlassParamValue(
+            initialValue = 0f,
+            valueRange = { 0f..1f },
+            typeConverter = Float.VectorConverter,
+            valueLabel = { "%.2f".format(it) }
+        )
     val eccentricFactor: LiquidGlassParamValue<Float> =
         LiquidGlassParamValue(
             initialValue = 1f,
@@ -146,6 +153,7 @@ class PreviewState {
             launch { refractionHeight.reset() }
             launch { refractionAmount.reset() }
             launch { dispersionHeight.reset() }
+            launch { bleedOpacity.reset() }
             launch { eccentricFactor.reset() }
         }
     }

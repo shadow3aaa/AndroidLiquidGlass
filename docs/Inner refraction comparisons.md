@@ -1,8 +1,6 @@
-# Comparisons
+# Inner refraction comparisons
 
-## Inner refraction
-
-### Inner refraction height
+## Inner refraction height
 
 Inner refraction amount: -60
 
@@ -14,7 +12,7 @@ Inner refraction amount: -60
 |  100   | ![](../artworks/inner_refraction/ios/-60%20100.png) | ![](../artworks/inner_refraction/android/-60%20100.png) |
 |  150   | ![](../artworks/inner_refraction/ios/-60%20150.png) | ![](../artworks/inner_refraction/android/-60%20150.png) |
 
-### Inner refraction amount
+## Inner refraction amount
 
 Inner refraction height: 20
 
@@ -27,7 +25,7 @@ Inner refraction height: 20
 |   60   |  ![](../artworks/inner_refraction/ios/60%2020.png)  |  ![](../artworks/inner_refraction/android/60%2020.png)  |
 |  200   | ![](../artworks/inner_refraction/ios/200%2020.png)  | ![](../artworks/inner_refraction/android/200%2020.png)  |
 
-### Combination
+## Combination
 
 | height | amount |                         iOS                          |                         Android                          |
 |:------:|:------:|:----------------------------------------------------:|:--------------------------------------------------------:|
@@ -36,7 +34,7 @@ Inner refraction height: 20
 |  200   |  150   | ![](../artworks/inner_refraction/ios/200%20150.png)  | ![](../artworks/inner_refraction/android/200%20150.png)  |
 |  500   |  450   | ![](../artworks/inner_refraction/ios/500%20450.png)  | ![](../artworks/inner_refraction/android/500%20450.png)  |
 
-### Corner size
+## Corner size
 
 | corner | height | amount |                             iOS                             |                             Android                             |
 |:------:|:------:|:------:|:-----------------------------------------------------------:|:---------------------------------------------------------------:|

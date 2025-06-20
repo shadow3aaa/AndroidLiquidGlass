@@ -98,6 +98,12 @@ fun ConfigurationBottomSheet(
 
                 ConfigurationMode.Advanced -> {
                     SliderChip(
+                        state.bleedOpacity,
+                        stringResource(R.string.bleed_opacity),
+                        { Icon(painterResource(R.drawable.opacity_24px)) },
+                        Modifier.fillMaxWidth()
+                    )
+                    SliderChip(
                         state.eccentricFactor,
                         stringResource(R.string.eccentric_factor),
                         { Icon(painterResource(R.drawable.all_out_24px)) },

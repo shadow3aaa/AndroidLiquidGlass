@@ -3,6 +3,7 @@
     <string name="app_name">液态玻璃</string>
 
     <string name="advanced_settings">高级设置</string>
+    <string name="bleed_opacity">渗透度</string>
     <string name="blur_radius">模糊半径</string>
     <string name="chroma_multiplier">彩度增强系数</string>
     <string name="close">关闭</string>
