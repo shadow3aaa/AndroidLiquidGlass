@@ -32,6 +32,7 @@ fun <T : Comparable<T>> SliderChip(
 ) {
     val containerColor = surfaceContainer
     val sliderColor = primaryContainer
+    val unsafeColors = yellowStaticColors
     val errorColor = errorContainer
 
     Row(
@@ -41,7 +42,7 @@ fun <T : Comparable<T>> SliderChip(
                 if (value.isValid) {
                     drawRect(containerColor)
                     drawRect(
-                        sliderColor,
+                        if (value.isSafe) sliderColor else unsafeColors.accentContainer,
                         size = size.copy(width = size.width * value.progress)
                     )
                 } else {
@@ -76,7 +77,7 @@ fun <T : Comparable<T>> SliderChip(
                 if (value.isValid) {
                     Text(
                         value.label,
-                        primary
+                        if (value.isSafe) primary else unsafeColors.accent
                     )
                 } else {
                     Row {

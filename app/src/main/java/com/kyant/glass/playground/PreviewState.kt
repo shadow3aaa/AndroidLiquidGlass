@@ -42,6 +42,9 @@ class PreviewState {
     var size: DpSize by mutableStateOf(initialSize)
     var offset: Offset by mutableStateOf(Offset.Zero)
 
+    private val sizeMinDimension
+        get() = min(size.width, size.height)
+
     val blurRadius: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 0.dp,
@@ -67,21 +70,24 @@ class PreviewState {
     val cornerRadius: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 30.dp,
-            valueRange = { 0.dp..min(size.width, size.height) / 2 },
+            valueRange = { 0.dp..sizeMinDimension },
+            safeValueRange = { 0.dp..sizeMinDimension / 2 },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
     val refractionHeight: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 20.dp,
-            valueRange = { 0.dp..min(size.width, size.height) / 2 },
+            valueRange = { 0.dp..sizeMinDimension * 2 },
+            safeValueRange = { 0.dp..cornerRadius.value },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
     val refractionAmount: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = (-60).dp,
-            valueRange = { -min(size.width, size.height)..min(size.width, size.height) },
+            valueRange = { -sizeMinDimension * 2..sizeMinDimension * 2 },
+            safeValueRange = { -sizeMinDimension..0.dp },
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
@@ -147,6 +153,7 @@ class PreviewState {
     inner class LiquidGlassParamValue<T : Comparable<T>>(
         val initialValue: T,
         private val valueRange: () -> ClosedRange<T>,
+        private val safeValueRange: () -> ClosedRange<T> = valueRange,
         private val typeConverter: TwoWayConverter<T, AnimationVector1D>,
         private val valueLabel: (T) -> String
     ) {
@@ -162,6 +169,10 @@ class PreviewState {
 
         val isValid: Boolean by derivedStateOf {
             state in valueRange()
+        }
+
+        val isSafe: Boolean by derivedStateOf {
+            state in safeValueRange()
         }
 
         val progress: Float by derivedStateOf {
