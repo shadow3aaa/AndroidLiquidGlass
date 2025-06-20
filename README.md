@@ -10,15 +10,17 @@ You mustn't use the shaders in the project for commercial purposes, they are onl
 
 ## Glass parameters
 
-|         Parameter         | Availability | Verification |
-|:-------------------------:|--------------|--------------|
-|  Inner refraction height  | ✔️           | ✔️           |
-|  Inner refraction amount  | ✔️           | ✔️           |
-|  Outer refraction height  | ❌            | ❌            |
-|  Outer refraction amount  | ❌            | ❌            |
-|     Dispersion height     | 🚧           | ❌            |
-|       Bleed opacity       | ✔️           | 🚧           |
-| Eccentric factor (add-on) | ✔️           | ✔️           |
+|        Parameter        | Availability | Verification |
+|:-----------------------:|--------------|--------------|
+| Inner refraction height | ✔️           | ✔️           |
+| Inner refraction amount | ✔️           | ✔️           |
+| Outer refraction height | ❌            | ❌            |
+| Outer refraction amount | ❌            | ❌            |
+|    Eccentric factor     | ✔️           | ✔️           |
+|    Dispersion height    | 🚧           | ❌            |
+|      Bleed amount       | 🚧           | ❌            |
+|    Bleed blur radius    | ❌            | ❌            |
+|      Bleed opacity      | ✔️           | 🚧           |
 
 ## Comparisons
 

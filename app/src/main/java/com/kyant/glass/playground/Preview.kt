@@ -234,7 +234,7 @@ fun Preview(state: PreviewState) {
                         "image"
                     ).asComposeRenderEffect()
                 }
-                .graphicsLayer { // glass effect
+                .graphicsLayer { // refraction + bleed effect
                     renderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
                             """// This file belongs to Kyant. You must not use it without permission.
@@ -242,10 +242,16 @@ fun Preview(state: PreviewState) {
     
     uniform float2 size;
     uniform float cornerRadius;
+    
     uniform float refractionHeight;
     uniform float refractionAmount;
-    uniform float bleedOpacity;
     uniform float eccentricFactor;
+    
+    uniform float bleedAmount;
+    uniform float bleedBlurRadius;
+    uniform float bleedOpacity;
+    
+    $colorShaderUtils
     
     float circleMap(float x) {
         return 1.0 - sqrt(1.0 - x * x);
@@ -274,20 +280,17 @@ fun Preview(state: PreviewState) {
         }
     }
     
-    $colorShaderUtils
-    
-    half4 main(float2 coord) {
+    half4 refraction(float2 coord, float height, float amount) {
         float2 halfSize = size * 0.5;
         float2 centeredCoord = coord - halfSize;
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         
-        half4 refractedColor;
-        if (sd < 0.0 && -sd < refractionHeight) {
+        if (sd < 0.0 && -sd < height) {
             float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
             float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
             float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
             
-            float refractedDistance = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
+            float refractedDistance = circleMap(1.0 - -sd / height) * amount;
             float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
             float2 refractedCoord = coord + refractedDistance * refractedDirection;
             if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
@@ -295,29 +298,33 @@ fun Preview(state: PreviewState) {
                 return half4(0.0, 0.0, 0.0, 1.0);
             }
             
-            refractedColor = image.eval(refractedCoord);
+            return image.eval(refractedCoord);
         } else {
-            refractedColor = image.eval(coord);
+            return image.eval(coord);
         }
-        
-        if (bleedOpacity > 0.0) {
-            half4 perspectiveColor = image.eval(coord);
-            float refractedColorLuma = luma(refractedColor);
-            float perspectiveColorLuma = luma(perspectiveColor);
-            float bleedFraction = min(refractedColorLuma, 0.5 + perspectiveColorLuma);
-            half4 bleedColor = mix(refractedColor, perspectiveColor, 0.5 * bleedOpacity * bleedFraction);
-            return bleedColor;
-        } else {
+    }
+    
+    half4 main(float2 coord) {
+        half4 refractedColor = refraction(coord, refractionHeight, refractionAmount);
+        if (bleedOpacity <= 0.0) {
             return refractedColor;
         }
+        
+        half4 bleedColor = refraction(coord, cornerRadius * 3.5, bleedAmount);
+        float bleedFraction = 0.5 * luma(refractedColor);
+        return mix(refractedColor, bleedColor, bleedOpacity * bleedFraction);
     }"""
                         ).apply {
                             setFloatUniform("size", size.width, size.height)
                             setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
+
                             setFloatUniform("refractionHeight", state.refractionHeight.value.toPx())
                             setFloatUniform("refractionAmount", state.refractionAmount.value.toPx())
-                            setFloatUniform("bleedOpacity", state.bleedOpacity.value)
                             setFloatUniform("eccentricFactor", state.eccentricFactor.value)
+
+                            setFloatUniform("bleedAmount", state.bleedAmount.value.toPx())
+                            setFloatUniform("bleedBlurRadius", state.bleedBlurRadius.value.toPx())
+                            setFloatUniform("bleedOpacity", state.bleedOpacity.value)
                         },
                         "image"
                     ).asComposeRenderEffect()

@@ -147,9 +147,15 @@ fun PreviewControls(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             SliderChip(
-                state.dispersionHeight,
-                stringResource(R.string.dispersion_height),
-                { Icon(painterResource(R.drawable.star_shine_24px)) },
+                state.bleedAmount,
+                stringResource(R.string.bleed_amount),
+                { Icon(painterResource(R.drawable.center_focus_weak_24px)) },
+                Modifier.fillMaxWidth()
+            )
+            SliderChip(
+                state.bleedOpacity,
+                stringResource(R.string.bleed_opacity),
+                { Icon(painterResource(R.drawable.opacity_24px)) },
                 Modifier.fillMaxWidth()
             )
             SliderChip(

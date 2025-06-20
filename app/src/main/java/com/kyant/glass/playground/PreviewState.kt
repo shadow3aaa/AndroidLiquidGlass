@@ -46,6 +46,15 @@ class PreviewState {
     private val sizeMinDimension
         get() = min(size.width, size.height)
 
+    val cornerRadius: LiquidGlassParamValue<Dp> =
+        LiquidGlassParamValue(
+            initialValue = 30.dp,
+            valueRange = { 0.dp..sizeMinDimension },
+            safeValueRange = { 0.dp..sizeMinDimension / 2 },
+            typeConverter = Dp.VectorConverter,
+            valueLabel = { "${it.value.fastRoundToInt()} dp" }
+        )
+
     val blurRadius: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 0.dp,
@@ -68,14 +77,6 @@ class PreviewState {
             valueLabel = { "%.2f".format(it) }
         )
 
-    val cornerRadius: LiquidGlassParamValue<Dp> =
-        LiquidGlassParamValue(
-            initialValue = 30.dp,
-            valueRange = { 0.dp..sizeMinDimension },
-            safeValueRange = { 0.dp..sizeMinDimension / 2 },
-            typeConverter = Dp.VectorConverter,
-            valueLabel = { "${it.value.fastRoundToInt()} dp" }
-        )
     val refractionHeight: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 20.dp,
@@ -92,6 +93,13 @@ class PreviewState {
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
+    val eccentricFactor: LiquidGlassParamValue<Float> =
+        LiquidGlassParamValue(
+            initialValue = 1f,
+            valueRange = { 0f..1f },
+            typeConverter = Float.VectorConverter,
+            valueLabel = { "%.2f".format(it) }
+        )
     val dispersionHeight: LiquidGlassParamValue<Dp> =
         LiquidGlassParamValue(
             initialValue = 0.dp,
@@ -99,16 +107,25 @@ class PreviewState {
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
+
+    val bleedAmount: LiquidGlassParamValue<Dp> =
+        LiquidGlassParamValue(
+            initialValue = 0.dp,
+            valueRange = { -sizeMinDimension * 2..sizeMinDimension * 2 },
+            safeValueRange = { -sizeMinDimension..0.dp },
+            typeConverter = Dp.VectorConverter,
+            valueLabel = { "${it.value.fastRoundToInt()} dp" }
+        )
+    val bleedBlurRadius: LiquidGlassParamValue<Dp> =
+        LiquidGlassParamValue(
+            initialValue = 0.dp,
+            valueRange = { 0.dp..sizeMinDimension / 2 },
+            typeConverter = Dp.VectorConverter,
+            valueLabel = { "${it.value.fastRoundToInt()} dp" }
+        )
     val bleedOpacity: LiquidGlassParamValue<Float> =
         LiquidGlassParamValue(
             initialValue = 0f,
-            valueRange = { 0f..1f },
-            typeConverter = Float.VectorConverter,
-            valueLabel = { "%.2f".format(it) }
-        )
-    val eccentricFactor: LiquidGlassParamValue<Float> =
-        LiquidGlassParamValue(
-            initialValue = 1f,
             valueRange = { 0f..1f },
             typeConverter = Float.VectorConverter,
             valueLabel = { "%.2f".format(it) }
@@ -147,17 +164,20 @@ class PreviewState {
                         offset = value
                     }
             }
+            launch { cornerRadius.reset() }
 
             launch { blurRadius.reset() }
             launch { opacity.reset() }
             launch { chromaMultiplier.reset() }
 
-            launch { cornerRadius.reset() }
             launch { refractionHeight.reset() }
             launch { refractionAmount.reset() }
-            launch { dispersionHeight.reset() }
-            launch { bleedOpacity.reset() }
             launch { eccentricFactor.reset() }
+            launch { dispersionHeight.reset() }
+
+            launch { bleedAmount.reset() }
+            launch { bleedBlurRadius.reset() }
+            launch { bleedOpacity.reset() }
         }
     }
 

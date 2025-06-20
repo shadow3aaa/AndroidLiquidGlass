@@ -113,15 +113,21 @@ fun ConfigurationBottomSheet(
                         )
                     }
                     SliderChip(
-                        state.bleedOpacity,
-                        stringResource(R.string.bleed_opacity),
-                        { Icon(painterResource(R.drawable.opacity_24px)) },
+                        state.bleedBlurRadius,
+                        stringResource(R.string.bleed_blur_radius),
+                        { Icon(painterResource(R.drawable.lens_blur_24px)) },
                         Modifier.fillMaxWidth()
                     )
                     SliderChip(
                         state.eccentricFactor,
                         stringResource(R.string.eccentric_factor),
                         { Icon(painterResource(R.drawable.all_out_24px)) },
+                        Modifier.fillMaxWidth()
+                    )
+                    SliderChip(
+                        state.dispersionHeight,
+                        stringResource(R.string.dispersion_height),
+                        { Icon(painterResource(R.drawable.star_shine_24px)) },
                         Modifier.fillMaxWidth()
                     )
                 }
