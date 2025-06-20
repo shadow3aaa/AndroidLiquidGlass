@@ -117,16 +117,15 @@ fun Preview(state: PreviewState) {
         return sdRectangle(coord, innerHalfSize) - cornerRadius;
     }
     
-    const float eps = 0.5;
-    const float2 epsX = float2(eps, 0.0);
-    const float2 epsY = float2(0.0, eps);
-    
     float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
-        float dx = sdRoundedRectangle(coord + epsX, halfSize, cornerRadius)
-            - sdRoundedRectangle(coord - epsX, halfSize, cornerRadius);
-        float dy = sdRoundedRectangle(coord + epsY, halfSize, cornerRadius)
-            - sdRoundedRectangle(coord - epsY, halfSize, cornerRadius);
-        return normalize(float2(dx, dy));
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        float2 cornerCoord = abs(coord) - innerHalfSize;
+        
+        if (cornerCoord.x >= 0.0 && cornerCoord.y >= 0.0) {
+            return sign(coord) * normalize(cornerCoord);
+        } else {
+            return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
+        }
     }
     
     half4 main(float2 coord) {
@@ -243,25 +242,25 @@ fun Preview(state: PreviewState) {
         return sdRectangle(coord, innerHalfSize) - cornerRadius;
     }
     
-    const float eps = 0.5;
-    const float2 epsX = float2(eps, 0.0);
-    const float2 epsY = float2(0.0, eps);
-    
     float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
-        float dx = sdRoundedRectangle(coord + epsX, halfSize, cornerRadius)
-            - sdRoundedRectangle(coord - epsX, halfSize, cornerRadius);
-        float dy = sdRoundedRectangle(coord + epsY, halfSize, cornerRadius)
-            - sdRoundedRectangle(coord - epsY, halfSize, cornerRadius);
-        return normalize(float2(dx, dy));
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        float2 cornerCoord = abs(coord) - innerHalfSize;
+        
+        if (cornerCoord.x >= 0.0 && cornerCoord.y >= 0.0) {
+            return sign(coord) * normalize(cornerCoord);
+        } else {
+            return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
+        }
     }
     
     half4 main(float2 coord) {
         float2 halfSize = size * 0.5;
+        float sizeMinDimension = min(size.x, size.y);
         float2 centeredCoord = coord - halfSize;
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         
         if (sd < 0.0 && -sd < refractionHeight) {
-            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius * 1.5);
+            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, min(cornerRadius * 1.5, sizeMinDimension));
             float refractedDistance = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
             float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
             float2 refractedCoord = coord + refractedDistance * refractedDirection;
@@ -277,12 +276,8 @@ fun Preview(state: PreviewState) {
         }
     }"""
                         ).apply {
-                            val cornerRadius =
-                                state.cornerRadius.value.toPx()
-                                    .fastCoerceAtMost(size.minDimension / 2f)
-
                             setFloatUniform("size", size.width, size.height)
-                            setFloatUniform("cornerRadius", cornerRadius)
+                            setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
                             setFloatUniform("refractionHeight", state.refractionHeight.value.toPx())
                             setFloatUniform("refractionAmount", state.refractionAmount.value.toPx())
                             setFloatUniform("eccentricFactor", state.eccentricFactor.value)
