@@ -18,8 +18,8 @@ You mustn't use the shaders in the project for commercial purposes, they are onl
 | Outer refraction amount | ❌            | ❌            |
 |    Eccentric factor     | ✔️           | ✔️           |
 |    Dispersion height    | 🚧           | ❌            |
-|      Bleed amount       | 🚧           | ❌            |
-|    Bleed blur radius    | ❌            | ❌            |
+|      Bleed amount       | ✔️           | ❌            |
+|    Bleed blur radius    | ✔️           | ❌            |
 |      Bleed opacity      | ✔️           | 🚧           |
 
 ## Comparisons

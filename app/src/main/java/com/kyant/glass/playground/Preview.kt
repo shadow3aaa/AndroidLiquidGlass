@@ -1,5 +1,6 @@
 package com.kyant.glass.playground
 
+import android.graphics.BlendMode
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.util.fastCoerceAtMost
 import com.kyant.expressa.prelude.*
 import com.kyant.glass.R
+import org.intellij.lang.annotations.Language
 
 @Composable
 fun Preview(state: PreviewState) {
@@ -74,28 +76,75 @@ fun Preview(state: PreviewState) {
             contentScale = ContentScale.Crop
         )
 
-        val colorShaderUtils = """
+        @Language("AGSL")
+        val colorShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
     const half3 rgbToY = half3(0.2126, 0.7152, 0.0722);
     
-    half3 linearizedRgb(half3 rgb) {
-        return mix(rgb / 12.92, pow((rgb + 0.055) / 1.055, half3(2.4)), step(half3(0.04045), rgb));
-    }
-    
-    half3 delinearizedRgb(half3 rgb) {
-        return mix(rgb * 12.92, 1.055 * pow(rgb, half3(1.0 / 2.4)) - 0.055, step(half3(0.0031308), rgb));
-    }
-    
     float luma(half4 color) {
-        return dot(linearizedRgb(color.rgb), rgbToY);
+        return dot(toLinearSrgb(color.rgb), rgbToY);
     }
     
     half4 saturateColor(half4 color, float amount) {
-        half3 linearRgb = linearizedRgb(color.rgb);
-        float y = dot(linearRgb, rgbToY);
-        half3 gray = half3(y, y, y);
-        half3 adjustedLinear = mix(gray, linearRgb, amount);
-        half3 finalColor = delinearizedRgb(adjustedLinear);
-        return half4(finalColor, color.a);
+        half3 linearSrgb = toLinearSrgb(color.rgb);
+        float y = dot(linearSrgb, rgbToY);
+        half3 gray = half3(y);
+        half3 adjustedLinearSrgb = mix(gray, linearSrgb, amount);
+        half3 adjustedSrgb = fromLinearSrgb(adjustedLinearSrgb);
+        return half4(adjustedSrgb, color.a);
+    }
+        """.trimIndent()
+
+        @Language("AGSL")
+        val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+    float circleMap(float x) {
+        return 1.0 - sqrt(1.0 - x * x);
+    }
+    
+    float sdRectangle(float2 coord, float2 halfSize) {
+        float2 d = abs(coord) - halfSize;
+        float outside = length(max(d, 0.0));
+        float inside = min(max(d.x, d.y), 0.0);
+        return outside + inside;
+    }
+    
+    float sdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        return sdRectangle(coord, innerHalfSize) - cornerRadius;
+    }
+    
+    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
+        float2 innerHalfSize = halfSize - float2(cornerRadius);
+        float2 cornerCoord = abs(coord) - innerHalfSize;
+        
+        if (cornerCoord.x >= 0.0 && cornerCoord.y >= 0.0) {
+            return sign(coord) * normalize(cornerCoord);
+        } else {
+            return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
+        }
+    }
+    
+    half4 refractionColor(float2 coord, float2 size, float cornerRadius, float eccentricFactor, float height, float amount) {
+        float2 halfSize = size * 0.5;
+        float2 centeredCoord = coord - halfSize;
+        float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
+        
+        if (sd < 0.0 && -sd < height) {
+            float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
+            float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
+            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
+            
+            float refractedDistance = circleMap(1.0 - -sd / height) * amount;
+            float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
+            float2 refractedCoord = coord + refractedDistance * refractedDirection;
+            if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
+                refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
+                return half4(0.0, 0.0, 0.0, 1.0);
+            }
+            
+            return image.eval(refractedCoord);
+        } else {
+            return image.eval(coord);
+        }
     }
         """.trimIndent()
 
@@ -235,7 +284,7 @@ fun Preview(state: PreviewState) {
                     ).asComposeRenderEffect()
                 }
                 .graphicsLayer { // refraction + bleed effect
-                    renderEffect = RenderEffect.createRuntimeShaderEffect(
+                    val refractionRenderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
                             """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
@@ -247,72 +296,19 @@ fun Preview(state: PreviewState) {
     uniform float refractionAmount;
     uniform float eccentricFactor;
     
-    uniform float bleedAmount;
-    uniform float bleedBlurRadius;
     uniform float bleedOpacity;
     
     $colorShaderUtils
-    
-    float circleMap(float x) {
-        return 1.0 - sqrt(1.0 - x * x);
-    }
-    
-    float sdRectangle(float2 coord, float2 halfSize) {
-        float2 d = abs(coord) - halfSize;
-        float outside = length(max(d, 0.0));
-        float inside = min(max(d.x, d.y), 0.0);
-        return outside + inside;
-    }
-    
-    float sdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
-        float2 innerHalfSize = halfSize - float2(cornerRadius);
-        return sdRectangle(coord, innerHalfSize) - cornerRadius;
-    }
-    
-    float2 gradSdRoundedRectangle(float2 coord, float2 halfSize, float cornerRadius) {
-        float2 innerHalfSize = halfSize - float2(cornerRadius);
-        float2 cornerCoord = abs(coord) - innerHalfSize;
-        
-        if (cornerCoord.x >= 0.0 && cornerCoord.y >= 0.0) {
-            return sign(coord) * normalize(cornerCoord);
-        } else {
-            return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
-        }
-    }
-    
-    half4 refraction(float2 coord, float height, float amount) {
-        float2 halfSize = size * 0.5;
-        float2 centeredCoord = coord - halfSize;
-        float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
-        
-        if (sd < 0.0 && -sd < height) {
-            float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
-            float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
-            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
-            
-            float refractedDistance = circleMap(1.0 - -sd / height) * amount;
-            float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
-            float2 refractedCoord = coord + refractedDistance * refractedDirection;
-            if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
-                refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
-                return half4(0.0, 0.0, 0.0, 1.0);
-            }
-            
-            return image.eval(refractedCoord);
-        } else {
-            return image.eval(coord);
-        }
-    }
+    $refractionShaderUtils
     
     half4 main(float2 coord) {
-        half4 refractedColor = refraction(coord, refractionHeight, refractionAmount);
+        half4 refractedColor = refractionColor(coord, size, cornerRadius, eccentricFactor, refractionHeight, refractionAmount);
         if (bleedOpacity <= 0.0) {
             return refractedColor;
+        } else {
+            refractedColor *= 1.0 - bleedOpacity * luma(refractedColor);
+            return refractedColor;
         }
-        
-        half4 bleedColor = refraction(coord, cornerRadius * 3.5, bleedAmount);
-        float bleedFraction = 0.5 * luma(refractedColor);
-        return mix(refractedColor, bleedColor, bleedOpacity * bleedFraction);
     }"""
                         ).apply {
                             setFloatUniform("size", size.width, size.height)
@@ -322,12 +318,67 @@ fun Preview(state: PreviewState) {
                             setFloatUniform("refractionAmount", state.refractionAmount.value.toPx())
                             setFloatUniform("eccentricFactor", state.eccentricFactor.value)
 
+                            setFloatUniform("bleedOpacity", state.bleedOpacity.value)
+                        },
+                        "image"
+                    )
+
+                    val bleedRenderEffect = RenderEffect.createRuntimeShaderEffect(
+                        RuntimeShader(
+                            """// This file belongs to Kyant. You must not use it without permission.
+    uniform shader image;
+    
+    uniform float2 size;
+    uniform float cornerRadius;
+    
+    uniform float eccentricFactor;
+    
+    uniform float bleedAmount;
+    uniform float bleedBlurRadius;
+    uniform float bleedOpacity;
+    
+    $refractionShaderUtils
+    
+    half4 main(float2 coord) {
+        half4 bleedColor = refractionColor(coord, size, cornerRadius, eccentricFactor, cornerRadius * 3.5, bleedAmount);
+        return bleedColor;
+    }"""
+                        ).apply {
+                            setFloatUniform("size", size.width, size.height)
+                            setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
+
+                            setFloatUniform("eccentricFactor", state.eccentricFactor.value)
+
                             setFloatUniform("bleedAmount", state.bleedAmount.value.toPx())
                             setFloatUniform("bleedBlurRadius", state.bleedBlurRadius.value.toPx())
                             setFloatUniform("bleedOpacity", state.bleedOpacity.value)
                         },
                         "image"
-                    ).asComposeRenderEffect()
+                    )
+
+                    renderEffect =
+                        if (state.bleedOpacity.value > 0f) {
+                            val bleedBlurRadiusPx = state.bleedBlurRadius.value.toPx()
+                            val blurredBleedRenderEffect =
+                                if (bleedBlurRadiusPx > 0f) {
+                                    RenderEffect.createBlurEffect(
+                                        bleedBlurRadiusPx,
+                                        bleedBlurRadiusPx,
+                                        bleedRenderEffect,
+                                        Shader.TileMode.CLAMP
+                                    )
+                                } else {
+                                    bleedRenderEffect
+                                }
+
+                            RenderEffect.createBlendModeEffect(
+                                blurredBleedRenderEffect,
+                                refractionRenderEffect,
+                                BlendMode.SRC_OVER
+                            ).asComposeRenderEffect()
+                        } else {
+                            refractionRenderEffect.asComposeRenderEffect()
+                        }
                 }
                 .graphicsLayer { // blur
                     val blurRadiusPx = state.blurRadius.value.toPx()
