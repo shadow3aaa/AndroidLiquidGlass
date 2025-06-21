@@ -361,11 +361,13 @@ fun Preview(state: PreviewState) {
                             val bleedBlurRadiusPx = state.bleedBlurRadius.value.toPx()
                             val blurredBleedRenderEffect =
                                 if (bleedBlurRadiusPx > 0f) {
-                                    RenderEffect.createBlurEffect(
-                                        bleedBlurRadiusPx,
-                                        bleedBlurRadiusPx,
+                                    RenderEffect.createChainEffect(
                                         bleedRenderEffect,
-                                        Shader.TileMode.CLAMP
+                                        RenderEffect.createBlurEffect(
+                                            bleedBlurRadiusPx,
+                                            bleedBlurRadiusPx,
+                                            Shader.TileMode.CLAMP
+                                        )
                                     )
                                 } else {
                                     bleedRenderEffect
