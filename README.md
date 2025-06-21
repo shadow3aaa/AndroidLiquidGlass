@@ -2,6 +2,8 @@
 
 An Android app that simulates Apple's Liquid Glass effect, Android 13 and above is required.
 
+Download the app [here](./app/release/app-release.apk).
+
 ![](./artworks/features.jpg)
 
 ## About shaders
