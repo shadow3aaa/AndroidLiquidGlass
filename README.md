@@ -16,11 +16,18 @@ You mustn't use the shaders in the project for commercial purposes, they are onl
 | Inner refraction amount | ✔️           | ✔️           |
 | Outer refraction height | ❌            | ❌            |
 | Outer refraction amount | ❌            | ❌            |
-|    Eccentric factor     | ✔️           | ✔️           |
-|    Dispersion height    | 🚧           | ❌            |
 |      Bleed amount       | ✔️           | ❌            |
 |    Bleed blur radius    | ✔️           | ❌            |
 |      Bleed opacity      | ✔️           | 🚧           |
+|       Blur radius       | ✔️           | ❌            |
+
+Other extensions:
+
+- Contrast
+- White point
+- Chroma multiplier
+- Eccentric factor
+- Dispersion height (🚧)
 
 ## Comparisons
 

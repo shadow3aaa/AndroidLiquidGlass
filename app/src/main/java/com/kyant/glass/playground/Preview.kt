@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
@@ -157,6 +156,44 @@ fun Preview(state: PreviewState) {
                     clip = true
                     shape = RoundedCornerShape(state.cornerRadius.value)
                 }
+                .graphicsLayer { // white point & chroma boost
+                    val contrast = state.contrast.value
+                    val whitePoint = state.whitePoint.value
+                    val chromaMultiplier = state.chromaMultiplier.value
+
+                    if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
+                        renderEffect = RenderEffect.createRuntimeShaderEffect(
+                            RuntimeShader(
+                                """// This file belongs to Kyant. You must not use it without permission.
+    uniform shader image;
+    
+    uniform float contrast;
+    uniform float whitePoint;
+    uniform float chromaMultiplier;
+    
+    $colorShaderUtils
+    
+    half4 main(float2 coord) {
+        half4 color = image.eval(coord);
+        
+        color = saturateColor(color, chromaMultiplier);
+        
+        float3 target = (whitePoint > 0.0) ? float3(1.0) : float3(0.0);
+        color.rgb = mix(color.rgb, target, abs(whitePoint));
+        
+        color.rgb = (color.rgb - 0.5) * (1.0 + contrast) + 0.5;
+        
+        return color;
+    }"""
+                            ).apply {
+                                setFloatUniform("contrast", contrast)
+                                setFloatUniform("whitePoint", whitePoint)
+                                setFloatUniform("chromaMultiplier", chromaMultiplier)
+                            },
+                            "image"
+                        ).asComposeRenderEffect()
+                    }
+                }
                 .graphicsLayer { // dispersion effect
                     renderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
@@ -261,29 +298,7 @@ fun Preview(state: PreviewState) {
                         "image"
                     ).asComposeRenderEffect()
                 }
-                .graphicsLayer { // chroma boost
-                    renderEffect = RenderEffect.createRuntimeShaderEffect(
-                        RuntimeShader(
-                            """// This file belongs to Kyant. You must not use it without permission.
-        uniform shader image;
-        
-        uniform float chromaMultiplier;
-        
-        $colorShaderUtils
-        
-        half4 main(float2 coord) {
-            half4 color = image.eval(coord);
-            color = saturateColor(color, chromaMultiplier);
-            return color;
-        }
-    """
-                        ).apply {
-                            setFloatUniform("chromaMultiplier", state.chromaMultiplier.value)
-                        },
-                        "image"
-                    ).asComposeRenderEffect()
-                }
-                .graphicsLayer { // refraction + bleed effect
+                .graphicsLayer { // refraction & bleed
                     val refractionRenderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
                             """// This file belongs to Kyant. You must not use it without permission.
@@ -302,12 +317,13 @@ fun Preview(state: PreviewState) {
     $refractionShaderUtils
     
     half4 main(float2 coord) {
-        half4 refractedColor = refractionColor(coord, size, cornerRadius, eccentricFactor, refractionHeight, refractionAmount);
+        half4 color = refractionColor(coord, size, cornerRadius, eccentricFactor, refractionHeight, refractionAmount);
         if (bleedOpacity <= 0.0) {
-            return refractedColor;
+            return color;
         } else {
-            refractedColor *= 1.0 - bleedOpacity * luma(refractedColor);
-            return refractedColor;
+            float luma = luma(color);
+            color *= 1.0 - bleedOpacity * luma;
+            return color;
         }
     }"""
                         ).apply {
@@ -332,26 +348,23 @@ fun Preview(state: PreviewState) {
     uniform float cornerRadius;
     
     uniform float eccentricFactor;
-    
     uniform float bleedAmount;
-    uniform float bleedBlurRadius;
-    uniform float bleedOpacity;
     
+    $colorShaderUtils
     $refractionShaderUtils
     
     half4 main(float2 coord) {
-        half4 bleedColor = refractionColor(coord, size, cornerRadius, eccentricFactor, cornerRadius * 3.5, bleedAmount);
-        return bleedColor;
+        half4 color = refractionColor(coord, size, cornerRadius, eccentricFactor, cornerRadius * 3.5, bleedAmount);
+        float luma = luma(color);
+        color.rgb = mix(color.rgb, half3(1.0), 0.5 * circleMap(1.0 - luma));
+        return color;
     }"""
                         ).apply {
                             setFloatUniform("size", size.width, size.height)
                             setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
 
                             setFloatUniform("eccentricFactor", state.eccentricFactor.value)
-
                             setFloatUniform("bleedAmount", state.bleedAmount.value.toPx())
-                            setFloatUniform("bleedBlurRadius", state.bleedBlurRadius.value.toPx())
-                            setFloatUniform("bleedOpacity", state.bleedOpacity.value)
                         },
                         "image"
                     )
@@ -397,10 +410,6 @@ fun Preview(state: PreviewState) {
                     translate(-rect.left, -rect.top) {
                         drawLayer(graphicsLayer)
                     }
-                    drawRect(
-                        Color.Black,
-                        alpha = state.opacity.value
-                    )
                 }
                 .onGloballyPositioned { layoutCoordinates ->
                     rect = layoutCoordinates.boundsInParent()

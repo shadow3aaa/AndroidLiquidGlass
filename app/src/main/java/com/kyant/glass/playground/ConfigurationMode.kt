@@ -1,6 +1,6 @@
 package com.kyant.glass.playground
 
 enum class ConfigurationMode {
-    Color,
+    Colors,
     Advanced
 }

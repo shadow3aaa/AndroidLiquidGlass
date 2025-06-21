@@ -80,7 +80,7 @@ fun ButtonGroup(
                     )
                 }
                 IconButton(
-                    { state.configurationMode = ConfigurationMode.Color },
+                    { state.configurationMode = ConfigurationMode.Colors },
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal()
                 ) {

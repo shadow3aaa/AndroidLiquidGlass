@@ -58,7 +58,7 @@ fun ConfigurationBottomSheet(
         ) {
             Text(
                 when (state.configurationMode) {
-                    ConfigurationMode.Color -> stringResource(R.string.colors)
+                    ConfigurationMode.Colors -> stringResource(R.string.colors)
                     ConfigurationMode.Advanced -> stringResource(R.string.advanced_settings)
                     null -> ""
                 },
@@ -83,7 +83,7 @@ fun ConfigurationBottomSheet(
                 Snapshot.withoutReadObservation { state.configurationMode }
             }
             when (retainedConfigurationMode) {
-                ConfigurationMode.Color -> {
+                ConfigurationMode.Colors -> {
                     SliderChip(
                         state.blurRadius,
                         stringResource(R.string.blur_radius),
@@ -91,9 +91,15 @@ fun ConfigurationBottomSheet(
                         Modifier.fillMaxWidth()
                     )
                     SliderChip(
-                        state.opacity,
-                        stringResource(R.string.opacity),
-                        { Icon(painterResource(R.drawable.opacity_24px)) },
+                        state.contrast,
+                        stringResource(R.string.contrast),
+                        { Icon(painterResource(R.drawable.contrast_24px)) },
+                        Modifier.fillMaxWidth()
+                    )
+                    SliderChip(
+                        state.whitePoint,
+                        stringResource(R.string.white_point),
+                        { Icon(painterResource(R.drawable.wb_sunny_24px)) },
                         Modifier.fillMaxWidth()
                     )
                     SliderChip(

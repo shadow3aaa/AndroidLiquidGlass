@@ -10,6 +10,7 @@
     <string name="chroma_multiplier">彩度增强系数</string>
     <string name="close">关闭</string>
     <string name="colors">颜色</string>
+    <string name="contrast">对比度</string>
     <string name="corner_radius">圆角半径</string>
     <string name="disable_unsafe_mode">禁用不安全值</string>
     <string name="dispersion_height">色散高度</string>
@@ -17,11 +18,11 @@
     <string name="enable_unsafe_mode">启用不安全值</string>
     <string name="height">高度</string>
     <string name="hide_controls">隐藏控件</string>
-    <string name="opacity">不透明度</string>
     <string name="pick_an_image">选择图像</string>
     <string name="refraction_height">折射高度</string>
     <string name="refraction_amount">折射量</string>
     <string name="reset">重置</string>
     <string name="show_controls">显示控件</string>
     <string name="width">宽度</string>
+    <string name="white_point">白点</string>
 </resources>

@@ -62,12 +62,19 @@ class PreviewState {
             typeConverter = Dp.VectorConverter,
             valueLabel = { "${it.value.fastRoundToInt()} dp" }
         )
-    val opacity: LiquidGlassParamValue<Float> =
+    val contrast: LiquidGlassParamValue<Float> =
         LiquidGlassParamValue(
             initialValue = 0f,
-            valueRange = { 0f..0.2f },
+            valueRange = { -0.5f..0.5f },
             typeConverter = Float.VectorConverter,
-            valueLabel = { "${(it * 100).fastRoundToInt()}%" }
+            valueLabel = { "%.2f".format(it) }
+        )
+    val whitePoint: LiquidGlassParamValue<Float> =
+        LiquidGlassParamValue(
+            initialValue = 0f,
+            valueRange = { -1f..1f },
+            typeConverter = Float.VectorConverter,
+            valueLabel = { "%.2f".format(it) }
         )
     val chromaMultiplier: LiquidGlassParamValue<Float> =
         LiquidGlassParamValue(
@@ -167,7 +174,8 @@ class PreviewState {
             launch { cornerRadius.reset() }
 
             launch { blurRadius.reset() }
-            launch { opacity.reset() }
+            launch { contrast.reset() }
+            launch { whitePoint.reset() }
             launch { chromaMultiplier.reset() }
 
             launch { refractionHeight.reset() }
