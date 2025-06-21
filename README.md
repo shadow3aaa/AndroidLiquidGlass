@@ -42,3 +42,7 @@ Complete comparisons:
 ## Special thanks
 
 - [GlassExplorer](https://github.com/ktiays/GlassExplorer)
+
+## Star history
+
+[![Star history chart](https://api.star-history.com/svg?repos=Kyant0/AndroidLiquidGlass&type=Date)](https://www.star-history.com/#Kyant0/AndroidLiquidGlass&Date)
