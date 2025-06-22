@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,17 +23,22 @@ import androidx.compose.ui.unit.dp
 import com.kyant.expressa.components.iconbutton.IconButton
 import com.kyant.expressa.components.iconbutton.IconButtonColors
 import com.kyant.expressa.components.iconbutton.IconButtonSizes
+import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.glass.R
+import com.kyant.liquidglass.LiquidGlassStyle
+import com.kyant.liquidglass.liquidGlass
 import kotlinx.coroutines.launch
 
 @Composable
-fun ButtonGroup(
+fun PreviewToolbar(
     state: PreviewState,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
+
+    val iconButtonLiquidGlassStyle = remember { LiquidGlassStyle(CornerShape.full) }
 
     Row(
         modifier.fillMaxWidth(),
@@ -40,10 +47,11 @@ fun ButtonGroup(
     ) {
         IconButton(
             { scope.launch { state.reset() } },
+            Modifier.liquidGlass(iconButtonLiquidGlassStyle),
             sizes = IconButtonSizes.medium,
             colors = IconButtonColors.tonal(
-                containerColor = tertiaryContainer,
-                contentColor = onTertiaryContainer
+                containerColor = primary.copy(alpha = 0.6f),
+                contentColor = onPrimary
             )
         ) {
             Icon(
@@ -63,10 +71,15 @@ fun ButtonGroup(
             ) {
                 IconButton(
                     { state.displayControls = !state.displayControls },
+                    Modifier.liquidGlass(
+                        iconButtonLiquidGlassStyle.copy
+                            (whitePoint = if (state.displayControls) 0.5f else -0.5f)
+                    ),
                     sizes = IconButtonSizes.medium,
-                    colors =
-                        if (state.displayControls) IconButtonColors.filled()
-                        else IconButtonColors.tonal()
+                    colors = IconButtonColors.tonal(
+                        containerColor = Color.Transparent,
+                        contentColor = if (state.displayControls) Color.Black else Color.White
+                    )
                 ) {
                     Icon(
                         painterResource(
@@ -81,8 +94,12 @@ fun ButtonGroup(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Colors },
+                    Modifier.liquidGlass(iconButtonLiquidGlassStyle.copy(whitePoint = -0.5f)),
                     sizes = IconButtonSizes.medium,
-                    colors = IconButtonColors.tonal()
+                    colors = IconButtonColors.tonal(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
+                    )
                 ) {
                     Icon(
                         painterResource(R.drawable.colors_24px),
@@ -91,10 +108,11 @@ fun ButtonGroup(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Advanced },
+                    Modifier.liquidGlass(iconButtonLiquidGlassStyle.copy(whitePoint = -0.5f)),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
-                        containerColor = primaryContainer,
-                        contentColor = onPrimaryContainer
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White
                     )
                 ) {
                     Icon(
@@ -121,7 +139,12 @@ fun ButtonGroup(
                     )
                 )
             },
-            sizes = IconButtonSizes.medium
+            Modifier.liquidGlass(iconButtonLiquidGlassStyle),
+            sizes = IconButtonSizes.medium,
+            colors = IconButtonColors.tonal(
+                containerColor = primary.copy(alpha = 0.6f),
+                contentColor = onPrimary
+            )
         ) {
             Icon(
                 painterResource(R.drawable.add_photo_alternate_24px),

@@ -10,6 +10,44 @@ Download the app [here](./app/release/app-release.apk).
 
 You mustn't use the shaders in the project for commercial purposes, they are only for educational purposes.
 
+## Library
+
+The library is under construction, use on your own risk.
+
+It doesn't support nested glass effects for now.
+
+### Examples
+
+```kotlin
+val providerState = rememberLiquidGlassProviderState()
+
+CompositionLocalProvider(
+    LocalLiquidGlassProviderState provides providerState
+) {
+    Box(
+        Modifier
+            .liquidGlassProvider(providerState)
+    )
+
+    Box(
+        Modifier
+            .liquidGlass(
+                remember {
+                    LiquidGlassStyle(
+                        shape = CornerShape.extraLarge,
+                        blurRadius = 8.dp,
+                        refractionHeight = 24.dp,
+                        refractionAmount = (-64).dp,
+                        whitePoint = 0.25f,
+                        chromaMultiplier = 1.5f
+                        // ...
+                    )
+                }
+            )
+    )
+}
+```
+
 ## Glass parameters
 
 |        Parameter        | Availability | Verification |

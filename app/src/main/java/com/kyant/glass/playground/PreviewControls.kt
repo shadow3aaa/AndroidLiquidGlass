@@ -4,12 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -17,10 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.kyant.expressa.m3.shape.CornerShape
@@ -35,7 +39,11 @@ fun PreviewControls(
     rect: () -> Rect,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier.fillMaxSize()) {
+    val layoutDirection = LocalLayoutDirection.current
+
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val containerSize = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
+
         // width
         Icon(
             painterResource(R.drawable.height_24px),
@@ -44,7 +52,9 @@ fun PreviewControls(
             Modifier
                 .graphicsLayer {
                     val rect = rect()
-                    translationX = rect.right + 8.dp.toPx()
+                    translationX =
+                        if (layoutDirection == Ltr) rect.right + 8.dp.toPx()
+                        else -containerSize.width + rect.left - 8.dp.toPx()
                     translationY = rect.center.y - size.height / 2
                 }
                 .border(
@@ -56,7 +66,7 @@ fun PreviewControls(
                 .background(tertiaryContainer)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
-                        val delta = dragAmount.x * 2
+                        val delta = dragAmount.x * 2f * if (layoutDirection == Ltr) 1f else -1f
                         state.size =
                             state.size.copy(
                                 width =
@@ -80,7 +90,9 @@ fun PreviewControls(
             Modifier
                 .graphicsLayer {
                     val rect = rect()
-                    translationX = rect.center.x - size.width / 2
+                    translationX =
+                        if (layoutDirection == Ltr) rect.center.x - size.width / 2
+                        else -containerSize.width + rect.center.x + size.width / 2
                     translationY = rect.bottom + 8.dp.toPx()
                 }
                 .border(
@@ -123,15 +135,20 @@ fun PreviewControls(
                     val rect = rect()
                     val cornerRadiusOffset =
                         (-state.cornerRadius.value.toPx() + 8.dp.toPx()) / (2 * sqrt(2f))
-                    translationX = rect.right + cornerRadiusOffset
+                    translationX =
+                        if (layoutDirection == Ltr) rect.right + cornerRadiusOffset
+                        else -containerSize.width + rect.left - cornerRadiusOffset
                     translationY = rect.bottom + cornerRadiusOffset
                 }
                 .border(
                     2.dp,
                     primary,
                     CornerShape.full
-                ),
-            dragDelta = { dragAmount -> (-dragAmount.x - dragAmount.y) / sqrt(2f) }
+                )
+                .requiredWidth(IntrinsicSize.Max),
+            dragDelta = { dragAmount ->
+                -((dragAmount.x * if (layoutDirection == Ltr) 1f else -1f) + dragAmount.y) / sqrt(2f)
+            }
         )
 
         // refraction
@@ -140,7 +157,9 @@ fun PreviewControls(
                 .width(IntrinsicSize.Max)
                 .graphicsLayer {
                     val rect = rect()
-                    translationX = rect.center.x - size.width / 2
+                    translationX =
+                        if (layoutDirection == Ltr) rect.center.x - size.width / 2
+                        else -containerSize.width + rect.center.x + size.width / 2
                     translationY = rect.top - size.height - 8.dp.toPx()
                 },
             horizontalAlignment = Alignment.CenterHorizontally,

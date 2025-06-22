@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Glass"
 include(":app")
- 
+include(":library")

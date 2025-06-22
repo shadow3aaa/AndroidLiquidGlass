@@ -80,6 +80,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":library"))
     implementation(files("libs/expressa-core-release.aar"))
     implementation(files("libs/expressa-components-release.aar"))
     implementation(libs.androidx.core.ktx)

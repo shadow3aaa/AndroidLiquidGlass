@@ -24,7 +24,6 @@ import com.kyant.expressa.ripple.RippleConfiguration
 import com.kyant.expressa.ripple.ripple
 import com.kyant.expressa.ui.LocalContentColor
 import com.kyant.glass.playground.Preview
-import com.kyant.glass.playground.PreviewState
 
 class MainActivity : ComponentActivity() {
 
@@ -60,8 +59,7 @@ class MainActivity : ComponentActivity() {
                         view.rootView.background = background.toArgb().toDrawable()
                     }
 
-                    val previewState = remember { PreviewState() }
-                    Preview(previewState)
+                    Preview()
                 }
             }
         }
