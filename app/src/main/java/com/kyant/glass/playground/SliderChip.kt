@@ -54,7 +54,7 @@ fun <T : Comparable<T>> SliderChip(
                 }
             )
             .clip(CornerShape.full)
-            .background(surfaceBright.copy(alpha = 0.6f))
+            .background(surfaceBright.copy(alpha = 0.85f))
             .drawBehind {
                 if (value.isValid) {
                     // drawRect(containerColor)

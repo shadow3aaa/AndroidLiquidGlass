@@ -5,12 +5,12 @@ import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
@@ -34,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Constraints
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.util.fastCoerceAtMost
 import com.kyant.expressa.prelude.*
+import com.kyant.expressa.shape.RoundedRectangle
 import com.kyant.glass.R
 import com.kyant.liquidglass.LocalLiquidGlassProviderState
 import com.kyant.liquidglass.liquidGlassProvider
@@ -51,6 +54,8 @@ import org.intellij.lang.annotations.Language
 
 @Composable
 fun Preview() {
+    val layoutDirection = LocalLayoutDirection.current
+
     val state = remember { PreviewState() }
 
     val graphicsLayer = rememberGraphicsLayer()
@@ -125,8 +130,9 @@ fun Preview() {
         float2 halfSize = size * 0.5;
         float2 centeredCoord = coord - halfSize;
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
+        sd = min(sd, 0.0);
         
-        if (sd < 0.0 && -sd < height) {
+        if (sd <= 0.0 && -sd <= height) {
             float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
             float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
             float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
@@ -153,8 +159,13 @@ fun Preview() {
                         translationX = state.offset.x
                         translationY = state.offset.y
                         clip = true
-                        shape = RoundedCornerShape(state.cornerRadius.value)
+                        shape = RoundedRectangle(state.cornerRadius.value)
                     }
+                    .border(
+                        width = 2.dp,
+                        color = Color.White.copy(alpha = 0.35f),
+                        shape = RoundedRectangle(state.cornerRadius.value)
+                    )
                     .graphicsLayer { // white point & chroma boost
                         val contrast = state.contrast.value
                         val whitePoint = state.whitePoint.value

@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -87,8 +86,7 @@ fun ConfigurationBottomSheet(
                     { state.configurationMode = null },
                     Modifier.liquidGlass(remember { LiquidGlassStyle(CornerShape.full) }),
                     colors = IconButtonColors.tonal(
-                        containerColor = primaryContainer.copy(alpha = 0.6f),
-                        contentColor = Color.White
+                        containerColor = primaryContainer.copy(alpha = 0.85f)
                     )
                 ) {
                     Icon(
@@ -137,7 +135,7 @@ fun ConfigurationBottomSheet(
                             { state.unsafeMode = !state.unsafeMode },
                             Modifier.liquidGlass(remember { LiquidGlassStyle(CornerShape.full) }),
                             colors = ButtonColors.filled(
-                                containerColor = primary.copy(alpha = 0.6f)
+                                containerColor = primary.copy(alpha = 0.85f)
                             )
                         ) {
                             Text(
