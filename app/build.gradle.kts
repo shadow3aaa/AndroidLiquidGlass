@@ -90,5 +90,10 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.material.ripple)
+    implementation("androidx.compose.runtime:runtime") {
+        version {
+            strictly("1.9.0-alpha04")
+        }
+    }
     implementation(libs.androidx.graphics.shapes)
 }

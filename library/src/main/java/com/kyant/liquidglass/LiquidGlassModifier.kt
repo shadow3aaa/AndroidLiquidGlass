@@ -1,16 +1,22 @@
 package com.kyant.liquidglass
 
-import android.graphics.BlendMode
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
-import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.boundsInRoot
@@ -20,16 +26,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Modifier.liquidGlass(
     style: LiquidGlassStyle,
-    providerState: LiquidGlassProviderState = LocalLiquidGlassProviderState.current,
-    state: LiquidGlassState = rememberLiquidGlassState()
+    providerState: LiquidGlassProviderState = LocalLiquidGlassProviderState.current
 ): Modifier =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val shadersCache = remember { LiquidGlassShadersCache() }
+        var rect: Rect? by remember { mutableStateOf(null) }
+
         this
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.2f),
-                shape = style.shape
-            )
             .graphicsLayer {
                 clip = true
                 shape = style.shape
@@ -52,7 +55,7 @@ fun Modifier.liquidGlass(
                 val refractionRenderEffect =
                     RenderEffect.createChainEffect(
                         RenderEffect.createRuntimeShaderEffect(
-                            state.refractionShader.apply {
+                            shadersCache.refractionShader.apply {
                                 setFloatUniform("size", size.width, size.height)
                                 setFloatUniform("cornerRadius", cornerRadiusPx)
 
@@ -72,7 +75,7 @@ fun Modifier.liquidGlass(
                         val bleedRenderEffect =
                             RenderEffect.createChainEffect(
                                 RenderEffect.createRuntimeShaderEffect(
-                                    state.bleedShader.apply {
+                                    shadersCache.bleedShader.apply {
                                         setFloatUniform("size", size.width, size.height)
                                         setFloatUniform("cornerRadius", cornerRadiusPx)
 
@@ -102,7 +105,7 @@ fun Modifier.liquidGlass(
                         RenderEffect.createBlendModeEffect(
                             blurredBleedRenderEffect,
                             refractionRenderEffect,
-                            BlendMode.SRC_OVER
+                            android.graphics.BlendMode.SRC_OVER
                         )
                     } else {
                         refractionRenderEffect
@@ -115,7 +118,7 @@ fun Modifier.liquidGlass(
                     if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
                         RenderEffect.createChainEffect(
                             RenderEffect.createRuntimeShaderEffect(
-                                state.colorManipulationShader.apply {
+                                shadersCache.colorManipulationShader.apply {
                                     setFloatUniform("contrast", contrast)
                                     setFloatUniform("whitePoint", whitePoint)
                                     setFloatUniform("chromaMultiplier", chromaMultiplier)
@@ -128,23 +131,29 @@ fun Modifier.liquidGlass(
                         refractionAndBleedRenderEffect.asComposeRenderEffect()
                     }
 
-                state.graphicsLayer.renderEffect = renderEffect
+                val graphicsLayer = obtainGraphicsLayer()
+                graphicsLayer.renderEffect = renderEffect
+
+                val outline = style.shape.createOutline(size, layoutDirection, this)
 
                 onDrawBehind {
-                    val rect = state.rect ?: return@onDrawBehind
-                    state.graphicsLayer.record {
-                        withTransform({
-                            clipRect(0f, 0f, size.width, size.height)
-                            translate(-rect.left, -rect.top)
-                        }) {
+                    val rect = rect ?: return@onDrawBehind
+                    graphicsLayer.record {
+                        translate(-rect.left, -rect.top) {
                             drawLayer(providerState.graphicsLayer)
                         }
                     }
-                    drawLayer(state.graphicsLayer)
+                    drawLayer(graphicsLayer)
+                    drawOutline(
+                        outline = outline,
+                        color = Color.White.copy(alpha = 0.2f),
+                        style = Stroke(3.dp.toPx()),
+                        blendMode = BlendMode.Plus
+                    )
                 }
             }
             .onGloballyPositioned { layoutCoordinates ->
-                state.rect = providerState.rect?.let {
+                rect = providerState.rect?.let {
                     layoutCoordinates.boundsInRoot().translate(-it.topLeft)
                 }
             }
