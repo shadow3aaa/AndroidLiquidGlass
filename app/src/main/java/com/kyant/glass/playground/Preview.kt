@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Constraints
@@ -57,8 +56,6 @@ import org.intellij.lang.annotations.Language
 
 @Composable
 fun Preview() {
-    val layoutDirection = LocalLayoutDirection.current
-
     val state = remember { PreviewState() }
 
     val graphicsLayer = rememberGraphicsLayer()

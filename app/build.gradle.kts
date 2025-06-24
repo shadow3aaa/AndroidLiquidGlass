@@ -48,6 +48,11 @@ android {
             apiVersion = KotlinVersion.KOTLIN_2_3
             languageVersion = KotlinVersion.KOTLIN_2_3
             jvmTarget = JvmTarget.JVM_21
+            freeCompilerArgs.addAll(
+                "-jvm-default=no-compatibility",
+                "-Xcontext-parameters",
+                "-Xcontext-sensetive-resolution",
+            )
         }
     }
     buildFeatures {
