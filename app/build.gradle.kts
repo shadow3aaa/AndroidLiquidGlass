@@ -85,7 +85,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":library"))
+    implementation(project(":liquid-glass"))
     implementation(files("libs/expressa-core-release.aar"))
     implementation(files("libs/expressa-components-release.aar"))
     implementation(libs.androidx.core.ktx)
@@ -100,5 +100,4 @@ dependencies {
             strictly("1.9.0-alpha04")
         }
     }
-    implementation(libs.androidx.graphics.shapes)
 }
