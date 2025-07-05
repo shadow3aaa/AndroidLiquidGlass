@@ -49,6 +49,7 @@ import androidx.compose.ui.util.fastCoerceAtMost
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.shape.RoundedRectangle
 import com.kyant.glass.R
+import com.kyant.liquidglass.GlassLightBorderBrush
 import com.kyant.liquidglass.LocalLiquidGlassProviderState
 import com.kyant.liquidglass.liquidGlassProvider
 import com.kyant.liquidglass.rememberLiquidGlassProviderState
@@ -164,13 +165,21 @@ fun Preview() {
                     .drawWithCache { // border
                         val shape = RoundedRectangle(state.cornerRadius.value)
                         val outline = shape.createOutline(size, layoutDirection, this)
+                        val cornerRadiusPx = state.cornerRadius.value.toPx()
+                        val borderWidthPx = 3.dp.toPx()
+                        val brush =
+                            GlassLightBorderBrush(
+                                color = Color.White,
+                                cornerRadius = cornerRadiusPx,
+                                borderWidth = borderWidthPx
+                            )
 
                         onDrawWithContent {
                             drawContent()
                             drawOutline(
                                 outline = outline,
-                                color = Color.White.copy(alpha = 0.2f),
-                                style = Stroke(3.dp.toPx()),
+                                brush = brush,
+                                style = Stroke(borderWidthPx),
                                 blendMode = BlendMode.Plus
                             )
                         }

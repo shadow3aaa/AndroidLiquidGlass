@@ -10,15 +10,10 @@ internal object LiquidGlassShaders {
     
     float luma(half4 color) {
         return dot(toLinearSrgb(color.rgb), rgbToY);
-    }
-        """.trimIndent()
+    }"""
 
     @Language("AGSL")
-    private val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
-    float circleMap(float x) {
-        return 1.0 - sqrt(1.0 - x * x);
-    }
-    
+    internal val sdRectangleShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
     float sdRectangle(float2 coord, float2 halfSize) {
         float2 d = abs(coord) - halfSize;
         float outside = length(max(d, 0.0));
@@ -40,6 +35,14 @@ internal object LiquidGlassShaders {
         } else {
             return sign(coord) * ((-cornerCoord.x < -cornerCoord.y) ? float2(1.0, 0.0) : float2(0.0, 1.0));
         }
+    }"""
+
+    @Language("AGSL")
+    private val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+    $sdRectangleShaderUtils
+    
+    float circleMap(float x) {
+        return 1.0 - sqrt(1.0 - x * x);
     }
     
     half4 refractionColor(float2 coord, float2 size, float cornerRadius, float eccentricFactor, float height, float amount) {
@@ -65,8 +68,7 @@ internal object LiquidGlassShaders {
         } else {
             return image.eval(coord);
         }
-    }
-        """.trimIndent()
+    }"""
 
     @Language("AGSL")
     val refractionShaderString = """// This file belongs to Kyant. You must not use it without permission.

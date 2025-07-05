@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -21,7 +20,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun Modifier.liquidGlass(
@@ -135,6 +133,17 @@ fun Modifier.liquidGlass(
                 graphicsLayer.renderEffect = renderEffect
 
                 val outline = style.shape.createOutline(size, layoutDirection, this)
+                val borderWidthPx = style.borderWidth.toPx()
+                val borderBrush =
+                    if (borderWidthPx > 0f) {
+                        GlassLightBorderBrush(
+                            color = style.borderColor,
+                            cornerRadius = cornerRadiusPx,
+                            borderWidth = borderWidthPx
+                        )
+                    } else {
+                        null
+                    }
 
                 onDrawBehind {
                     val rect = rect ?: return@onDrawBehind
@@ -143,13 +152,16 @@ fun Modifier.liquidGlass(
                             drawLayer(providerState.graphicsLayer)
                         }
                     }
+
                     drawLayer(graphicsLayer)
-                    drawOutline(
-                        outline = outline,
-                        color = Color.White.copy(alpha = 0.2f),
-                        style = Stroke(3.dp.toPx()),
-                        blendMode = BlendMode.Plus
-                    )
+                    borderBrush?.let {
+                        drawOutline(
+                            outline = outline,
+                            brush = it,
+                            style = Stroke(borderWidthPx),
+                            blendMode = BlendMode.Plus
+                        )
+                    }
                 }
             }
             .onGloballyPositioned { layoutCoordinates ->

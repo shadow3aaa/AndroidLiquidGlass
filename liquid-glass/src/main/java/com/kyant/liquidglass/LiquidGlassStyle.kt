@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -13,6 +14,8 @@ import androidx.compose.ui.unit.dp
 fun LiquidGlassStyle(
     shape: CornerBasedShape,
     blurRadius: Dp = 2.dp,
+    borderWidth: Dp = 3.dp,
+    borderColor: Color = Color.White,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -29,6 +32,8 @@ fun LiquidGlassStyle(
     ImmutableLiquidGlassStyle(
         shape = shape,
         blurRadius = blurRadius,
+        borderWidth = borderWidth,
+        borderColor = borderColor,
         refractionHeight = refractionHeight,
         refractionAmount = refractionAmount,
         eccentricFactor = eccentricFactor,
@@ -43,6 +48,8 @@ fun LiquidGlassStyle(
 fun MutableLiquidGlassState(
     shape: CornerBasedShape,
     blurRadius: Dp = 2.dp,
+    borderWidth: Dp = 3.dp,
+    borderColor: Color = Color.White,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -58,17 +65,19 @@ fun MutableLiquidGlassState(
 ): MutableLiquidGlassState =
     MutableLiquidGlassState(
         initialStyle = ImmutableLiquidGlassStyle(
-            shape,
-            blurRadius,
-            refractionHeight,
-            refractionAmount,
-            eccentricFactor,
-            bleedAmount,
-            bleedBlurRadius,
-            bleedOpacity,
-            contrast,
-            whitePoint,
-            chromaMultiplier
+            shape = shape,
+            blurRadius = blurRadius,
+            borderWidth = borderWidth,
+            borderColor = borderColor,
+            refractionHeight = refractionHeight,
+            refractionAmount = refractionAmount,
+            eccentricFactor = eccentricFactor,
+            bleedAmount = bleedAmount,
+            bleedBlurRadius = bleedBlurRadius,
+            bleedOpacity = bleedOpacity,
+            contrast = contrast,
+            whitePoint = whitePoint,
+            chromaMultiplier = chromaMultiplier
         )
     )
 
@@ -77,6 +86,10 @@ sealed interface LiquidGlassStyle {
     val shape: CornerBasedShape
 
     val blurRadius: Dp
+
+    val borderWidth: Dp
+
+    val borderColor: Color
 
     val refractionHeight: Dp
 
@@ -106,6 +119,8 @@ class ImmutableLiquidGlassStyle
 internal constructor(
     override val shape: CornerBasedShape,
     override val blurRadius: Dp = 2.dp,
+    override val borderWidth: Dp = 3.dp,
+    override val borderColor: Color = Color.White,
 
     override val refractionHeight: Dp = 8.dp,
     override val refractionAmount: Dp = (-16).dp,
@@ -123,6 +138,8 @@ internal constructor(
     fun copy(
         shape: CornerBasedShape = this.shape,
         blurRadius: Dp = this.blurRadius,
+        borderWidth: Dp = this.borderWidth,
+        borderColor: Color = this.borderColor,
 
         refractionHeight: Dp = this.refractionHeight,
         refractionAmount: Dp = this.refractionAmount,
@@ -139,6 +156,8 @@ internal constructor(
         ImmutableLiquidGlassStyle(
             shape = shape,
             blurRadius = blurRadius,
+            borderWidth = borderWidth,
+            borderColor = borderColor,
             refractionHeight = refractionHeight,
             refractionAmount = refractionAmount,
             eccentricFactor = eccentricFactor,
@@ -158,6 +177,8 @@ internal constructor(
 
     override var shape: CornerBasedShape by mutableStateOf(initialStyle.shape)
     override var blurRadius: Dp by mutableStateOf(initialStyle.blurRadius)
+    override var borderWidth: Dp by mutableStateOf(initialStyle.borderWidth)
+    override var borderColor: Color by mutableStateOf(initialStyle.borderColor)
 
     override var refractionHeight: Dp by mutableStateOf(initialStyle.refractionHeight)
     override var refractionAmount: Dp by mutableStateOf(initialStyle.refractionAmount)
