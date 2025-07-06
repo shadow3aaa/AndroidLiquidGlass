@@ -169,7 +169,7 @@ fun Preview() {
                         val borderWidthPx = 3.dp.toPx()
                         val brush =
                             GlassLightBorderBrush(
-                                color = Color.White,
+                                color = Color.White.copy(alpha = 0.5f),
                                 cornerRadius = cornerRadiusPx,
                                 borderWidth = borderWidthPx
                             )

@@ -15,7 +15,7 @@ fun LiquidGlassStyle(
     shape: CornerBasedShape,
     blurRadius: Dp = 2.dp,
     borderWidth: Dp = 3.dp,
-    borderColor: Color = Color.White,
+    borderColor: Color = Color.White.copy(alpha = 0.5f),
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -49,7 +49,7 @@ fun MutableLiquidGlassState(
     shape: CornerBasedShape,
     blurRadius: Dp = 2.dp,
     borderWidth: Dp = 3.dp,
-    borderColor: Color = Color.White,
+    borderColor: Color = Color.White.copy(alpha = 0.5f),
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -120,7 +120,7 @@ internal constructor(
     override val shape: CornerBasedShape,
     override val blurRadius: Dp = 2.dp,
     override val borderWidth: Dp = 3.dp,
-    override val borderColor: Color = Color.White,
+    override val borderColor: Color = Color.White.copy(alpha = 0.5f),
 
     override val refractionHeight: Dp = 8.dp,
     override val refractionAmount: Dp = (-16).dp,
