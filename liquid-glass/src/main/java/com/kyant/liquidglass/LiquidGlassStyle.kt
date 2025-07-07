@@ -17,7 +17,7 @@ fun LiquidGlassStyle(
     borderWidth: Dp = 3.dp,
     borderColor: Color = Color.White.copy(alpha = 0.5f),
     lightSourceAngle: Float = 45f,
-    lightSourceDecay: Float = 2f,
+    @FloatRange(from = 0.0) lightSourceDecay: Float = 4f,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -55,7 +55,7 @@ fun MutableLiquidGlassState(
     borderWidth: Dp = 3.dp,
     borderColor: Color = Color.White.copy(alpha = 0.5f),
     lightSourceAngle: Float = 45f,
-    lightSourceDecay: Float = 2f,
+    @FloatRange(from = 0.0) lightSourceDecay: Float = 4f,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -101,6 +101,7 @@ sealed interface LiquidGlassStyle {
 
     val lightSourceAngle: Float
 
+    @get:FloatRange(from = 0.0)
     val lightSourceDecay: Float
 
     val refractionHeight: Dp
@@ -134,7 +135,7 @@ internal constructor(
     override val borderWidth: Dp = 3.dp,
     override val borderColor: Color = Color.White.copy(alpha = 0.5f),
     override val lightSourceAngle: Float = 45f,
-    override val lightSourceDecay: Float = 2f,
+    @param:FloatRange(from = 0.0) override val lightSourceDecay: Float = 4f,
 
     override val refractionHeight: Dp = 8.dp,
     override val refractionAmount: Dp = (-16).dp,
@@ -155,7 +156,7 @@ internal constructor(
         borderWidth: Dp = this.borderWidth,
         borderColor: Color = this.borderColor,
         lightSourceAngle: Float = this.lightSourceAngle,
-        lightSourceDecay: Float = this.lightSourceDecay,
+        @FloatRange(from = 0.0) lightSourceDecay: Float = this.lightSourceDecay,
 
         refractionHeight: Dp = this.refractionHeight,
         refractionAmount: Dp = this.refractionAmount,
