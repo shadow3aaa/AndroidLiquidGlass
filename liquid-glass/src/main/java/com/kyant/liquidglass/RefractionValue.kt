@@ -31,7 +31,7 @@ sealed interface RefractionValue {
     data object Full : RefractionValue {
 
         override fun toPx(density: Density, size: Size): Float {
-            return -size.minDimension / 2f
+            return -size.minDimension
         }
     }
 
@@ -39,7 +39,7 @@ sealed interface RefractionValue {
     data object Half : RefractionValue {
 
         override fun toPx(density: Density, size: Size): Float {
-            return -size.minDimension / 4f
+            return -size.minDimension / 2f
         }
     }
 

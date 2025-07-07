@@ -28,9 +28,8 @@ fun rememberLiquidGlassProviderState(): LiquidGlassProviderState {
     }
 }
 
-class LiquidGlassProviderState
-internal constructor(
-    internal val graphicsLayer: GraphicsLayer,
+class LiquidGlassProviderState internal constructor(
+    internal val graphicsLayer: GraphicsLayer
 ) {
 
     internal var rect: Rect? by mutableStateOf(null)
