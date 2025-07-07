@@ -171,7 +171,9 @@ fun Preview() {
                             GlassLightBorderBrush(
                                 color = Color.White.copy(alpha = 0.5f),
                                 cornerRadius = cornerRadiusPx,
-                                borderWidth = borderWidthPx
+                                borderWidth = borderWidthPx,
+                                lightSourceAngle = 75f,
+                                lightSourceDecay = 2f
                             )
 
                         onDrawWithContent {

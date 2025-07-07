@@ -139,7 +139,9 @@ fun Modifier.liquidGlass(
                         GlassLightBorderBrush(
                             color = style.borderColor,
                             cornerRadius = cornerRadiusPx,
-                            borderWidth = borderWidthPx
+                            borderWidth = borderWidthPx,
+                            lightSourceAngle = style.lightSourceAngle,
+                            lightSourceDecay = style.lightSourceDecay
                         )
                     } else {
                         null

@@ -16,6 +16,8 @@ fun LiquidGlassStyle(
     blurRadius: Dp = 2.dp,
     borderWidth: Dp = 3.dp,
     borderColor: Color = Color.White.copy(alpha = 0.5f),
+    lightSourceAngle: Float = 45f,
+    lightSourceDecay: Float = 2f,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -34,6 +36,8 @@ fun LiquidGlassStyle(
         blurRadius = blurRadius,
         borderWidth = borderWidth,
         borderColor = borderColor,
+        lightSourceAngle = lightSourceAngle,
+        lightSourceDecay = lightSourceDecay,
         refractionHeight = refractionHeight,
         refractionAmount = refractionAmount,
         eccentricFactor = eccentricFactor,
@@ -50,6 +54,8 @@ fun MutableLiquidGlassState(
     blurRadius: Dp = 2.dp,
     borderWidth: Dp = 3.dp,
     borderColor: Color = Color.White.copy(alpha = 0.5f),
+    lightSourceAngle: Float = 45f,
+    lightSourceDecay: Float = 2f,
 
     refractionHeight: Dp = 8.dp,
     refractionAmount: Dp = (-16).dp,
@@ -69,6 +75,8 @@ fun MutableLiquidGlassState(
             blurRadius = blurRadius,
             borderWidth = borderWidth,
             borderColor = borderColor,
+            lightSourceAngle = lightSourceAngle,
+            lightSourceDecay = lightSourceDecay,
             refractionHeight = refractionHeight,
             refractionAmount = refractionAmount,
             eccentricFactor = eccentricFactor,
@@ -90,6 +98,10 @@ sealed interface LiquidGlassStyle {
     val borderWidth: Dp
 
     val borderColor: Color
+
+    val lightSourceAngle: Float
+
+    val lightSourceDecay: Float
 
     val refractionHeight: Dp
 
@@ -121,6 +133,8 @@ internal constructor(
     override val blurRadius: Dp = 2.dp,
     override val borderWidth: Dp = 3.dp,
     override val borderColor: Color = Color.White.copy(alpha = 0.5f),
+    override val lightSourceAngle: Float = 45f,
+    override val lightSourceDecay: Float = 2f,
 
     override val refractionHeight: Dp = 8.dp,
     override val refractionAmount: Dp = (-16).dp,
@@ -140,6 +154,8 @@ internal constructor(
         blurRadius: Dp = this.blurRadius,
         borderWidth: Dp = this.borderWidth,
         borderColor: Color = this.borderColor,
+        lightSourceAngle: Float = this.lightSourceAngle,
+        lightSourceDecay: Float = this.lightSourceDecay,
 
         refractionHeight: Dp = this.refractionHeight,
         refractionAmount: Dp = this.refractionAmount,
@@ -158,6 +174,8 @@ internal constructor(
             blurRadius = blurRadius,
             borderWidth = borderWidth,
             borderColor = borderColor,
+            lightSourceAngle = lightSourceAngle,
+            lightSourceDecay = lightSourceDecay,
             refractionHeight = refractionHeight,
             refractionAmount = refractionAmount,
             eccentricFactor = eccentricFactor,
@@ -179,6 +197,8 @@ internal constructor(
     override var blurRadius: Dp by mutableStateOf(initialStyle.blurRadius)
     override var borderWidth: Dp by mutableStateOf(initialStyle.borderWidth)
     override var borderColor: Color by mutableStateOf(initialStyle.borderColor)
+    override var lightSourceAngle: Float by mutableFloatStateOf(initialStyle.lightSourceAngle)
+    override var lightSourceDecay: Float by mutableFloatStateOf(initialStyle.lightSourceDecay)
 
     override var refractionHeight: Dp by mutableStateOf(initialStyle.refractionHeight)
     override var refractionAmount: Dp by mutableStateOf(initialStyle.refractionAmount)

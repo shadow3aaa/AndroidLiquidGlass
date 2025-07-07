@@ -13,7 +13,9 @@ import kotlin.math.PI
 class GlassLightBorderBrush(
     private val color: Color,
     private val cornerRadius: Float,
-    private val borderWidth: Float
+    private val borderWidth: Float,
+    private val lightSourceAngle: Float,
+    private val lightSourceDecay: Float
 ) : ShaderBrush() {
 
     override fun createShader(size: Size): Shader {
@@ -28,10 +30,10 @@ class GlassLightBorderBrush(
         float2 centeredCoord = coord - halfSize;
         
         float2 grad = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
-        float2 topLightNormal = float2(-cos(${75.0 / 180.0 * PI}), -sin(${75.0 / 180.0 * PI}));
+        float2 topLightNormal = float2(-cos(${lightSourceAngle / 180.0 * PI}), -sin(${lightSourceAngle / 180.0 * PI}));
         float topLightFraction = dot(topLightNormal, grad);
         float bottomLightFraction = dot(-topLightNormal, grad);
-        float fraction = pow(max(topLightFraction, bottomLightFraction), 5.0);
+        float fraction = pow(max(topLightFraction, bottomLightFraction), $lightSourceDecay);
         
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         sd = min(sd, 0.0);
