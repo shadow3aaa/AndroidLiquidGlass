@@ -26,6 +26,7 @@ import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.LocalTextStyle
 import com.kyant.expressa.ui.ProvideTextStyle
 import com.kyant.expressa.ui.Text
+import com.kyant.liquidglass.GlassMaterial
 import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.liquidGlass
 
@@ -48,8 +49,8 @@ fun <T : Comparable<T>> SliderChip(
             .liquidGlass(
                 remember {
                     LiquidGlassStyle(
-                        shape = CornerShape.extraLarge,
-                        chromaMultiplier = 1.5f
+                        CornerShape.extraLarge,
+                        material = GlassMaterial(chromaMultiplier = 1.5f)
                     )
                 }
             )

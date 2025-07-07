@@ -27,6 +27,7 @@ import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.glass.R
+import com.kyant.liquidglass.GlassMaterial
 import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.liquidGlass
 import kotlinx.coroutines.launch
@@ -38,7 +39,12 @@ fun PreviewToolbar(
 ) {
     val scope = rememberCoroutineScope()
 
-    val iconButtonLiquidGlassStyle = remember { LiquidGlassStyle(CornerShape.full) }
+    val iconButtonLiquidGlassStyle = remember {
+        LiquidGlassStyle(
+            CornerShape.full,
+            material = GlassMaterial(whitePoint = -0.5f)
+        )
+    }
 
     Row(
         modifier.fillMaxWidth(),
@@ -72,8 +78,11 @@ fun PreviewToolbar(
                 IconButton(
                     { state.displayControls = !state.displayControls },
                     Modifier.liquidGlass(
-                        iconButtonLiquidGlassStyle.copy
-                            (whitePoint = if (state.displayControls) 0.5f else -0.5f)
+                        iconButtonLiquidGlassStyle.copy(
+                            material = GlassMaterial(
+                                whitePoint = if (state.displayControls) 0.5f else -0.5f
+                            )
+                        )
                     ),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
@@ -94,7 +103,7 @@ fun PreviewToolbar(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Colors },
-                    Modifier.liquidGlass(iconButtonLiquidGlassStyle.copy(whitePoint = -0.5f)),
+                    Modifier.liquidGlass(iconButtonLiquidGlassStyle),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
                         containerColor = Color.Transparent,
@@ -108,7 +117,7 @@ fun PreviewToolbar(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Advanced },
-                    Modifier.liquidGlass(iconButtonLiquidGlassStyle.copy(whitePoint = -0.5f)),
+                    Modifier.liquidGlass(iconButtonLiquidGlassStyle),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
                         containerColor = Color.Transparent,

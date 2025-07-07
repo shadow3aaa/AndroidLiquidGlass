@@ -10,16 +10,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import kotlin.math.ceil
+import kotlin.math.min
 
 @Composable
 fun Modifier.liquidGlass(
@@ -32,11 +39,12 @@ fun Modifier.liquidGlass(
 
         this
             .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
                 clip = true
                 shape = style.shape
             }
             .drawWithCache {
-                val contentBlurRadiusPx = style.blurRadius.toPx()
+                val contentBlurRadiusPx = style.material.blurRadius.toPx()
                 val contentRenderEffect =
                     if (contentBlurRadiusPx > 0f) {
                         RenderEffect.createBlurEffect(
@@ -50,42 +58,63 @@ fun Modifier.liquidGlass(
 
                 val cornerRadiusPx = style.shape.topStart.toPx(size, this)
 
+                val hasBleed = style.bleed.opacity > 0f
                 val refractionRenderEffect =
                     RenderEffect.createChainEffect(
                         RenderEffect.createRuntimeShaderEffect(
-                            shadersCache.refractionShader.apply {
+                            shadersCache.getRefractionShader(hasBleed).apply {
                                 setFloatUniform("size", size.width, size.height)
                                 setFloatUniform("cornerRadius", cornerRadiusPx)
 
-                                setFloatUniform("refractionHeight", style.refractionHeight.toPx())
-                                setFloatUniform("refractionAmount", style.refractionAmount.toPx())
-                                setFloatUniform("eccentricFactor", style.eccentricFactor)
+                                setFloatUniform(
+                                    "refractionHeight",
+                                    style.innerRefraction.height.toPx(this@drawWithCache, size)
+                                )
+                                setFloatUniform(
+                                    "refractionAmount",
+                                    style.innerRefraction.amount.toPx(this@drawWithCache, size)
+                                )
+                                setFloatUniform(
+                                    "eccentricFactor",
+                                    style.innerRefraction.eccentricFactor
+                                )
 
-                                setFloatUniform("bleedOpacity", style.bleedOpacity)
+                                if (hasBleed) {
+                                    setFloatUniform(
+                                        "bleedOpacity",
+                                        style.bleed.opacity
+                                    )
+                                }
                             },
                             "image"
                         ),
                         contentRenderEffect
                     )
 
-                val refractionAndBleedRenderEffect =
-                    if (style.bleedOpacity > 0f) {
+                val refractionWithBleedRenderEffect =
+                    if (hasBleed) {
                         val bleedRenderEffect =
                             RenderEffect.createChainEffect(
                                 RenderEffect.createRuntimeShaderEffect(
-                                    shadersCache.bleedShader.apply {
+                                    shadersCache.getBleedShader().apply {
                                         setFloatUniform("size", size.width, size.height)
                                         setFloatUniform("cornerRadius", cornerRadiusPx)
 
-                                        setFloatUniform("eccentricFactor", style.eccentricFactor)
-                                        setFloatUniform("bleedAmount", style.bleedAmount.toPx())
+                                        setFloatUniform(
+                                            "eccentricFactor",
+                                            style.innerRefraction.eccentricFactor
+                                        )
+                                        setFloatUniform(
+                                            "bleedAmount",
+                                            style.bleed.amount.toPx(this@drawWithCache, size)
+                                        )
                                     },
                                     "image"
                                 ),
                                 contentRenderEffect
                             )
 
-                        val bleedBlurRadiusPx = style.bleedBlurRadius.toPx()
+                        val bleedBlurRadiusPx = style.bleed.blurRadius.toPx()
                         val blurredBleedRenderEffect =
                             if (bleedBlurRadiusPx > 0f) {
                                 RenderEffect.createChainEffect(
@@ -109,43 +138,59 @@ fun Modifier.liquidGlass(
                         refractionRenderEffect
                     }
 
-                val contrast = style.contrast
-                val whitePoint = style.whitePoint
-                val chromaMultiplier = style.chromaMultiplier
+                val materialRenderEffect =
+                    if (style.material != GlassMaterial.Default) {
+                        RenderEffect.createRuntimeShaderEffect(
+                            shadersCache.getMaterialShader().apply {
+                                setFloatUniform(
+                                    "contrast",
+                                    style.material.contrast
+                                )
+                                setFloatUniform(
+                                    "whitePoint",
+                                    style.material.whitePoint
+                                )
+                                setFloatUniform(
+                                    "chromaMultiplier",
+                                    style.material.chromaMultiplier
+                                )
+                            },
+                            "image"
+                        )
+                    } else {
+                        null
+                    }
+
                 val renderEffect =
-                    if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
+                    if (materialRenderEffect != null) {
                         RenderEffect.createChainEffect(
-                            RenderEffect.createRuntimeShaderEffect(
-                                shadersCache.colorManipulationShader.apply {
-                                    setFloatUniform("contrast", contrast)
-                                    setFloatUniform("whitePoint", whitePoint)
-                                    setFloatUniform("chromaMultiplier", chromaMultiplier)
-                                },
-                                "image"
-                            ),
-                            refractionAndBleedRenderEffect
+                            materialRenderEffect,
+                            refractionWithBleedRenderEffect
                         ).asComposeRenderEffect()
                     } else {
-                        refractionAndBleedRenderEffect.asComposeRenderEffect()
+                        refractionWithBleedRenderEffect.asComposeRenderEffect()
                     }
 
                 val graphicsLayer = obtainGraphicsLayer()
                 graphicsLayer.renderEffect = renderEffect
 
-                val outline = style.shape.createOutline(size, layoutDirection, this)
-                val borderWidthPx = style.borderWidth.toPx()
-                val borderBrush =
-                    if (borderWidthPx > 0f) {
-                        GlassLightBorderBrush(
-                            color = style.borderColor,
-                            cornerRadius = cornerRadiusPx,
-                            borderWidth = borderWidthPx,
-                            lightSourceAngle = style.lightSourceAngle,
-                            lightSourceDecay = style.lightSourceDecay
-                        )
+                val strokeWidthPx = ceil(min(style.border.width.toPx(), size.minDimension / 2))
+                val halfStroke = strokeWidthPx / 2
+                val borderTopLeft = Offset(halfStroke, halfStroke)
+                val borderSize = Size(size.width - strokeWidthPx, size.height - strokeWidthPx)
+                val border =
+                    if (strokeWidthPx > 0f) {
+                        val borderBrush = style.border.createBrush(this, borderSize, cornerRadiusPx)
+                        if (borderBrush != null) {
+                            val borderOutline = style.shape.createOutline(borderSize, layoutDirection, this)
+                            Pair(borderOutline, borderBrush)
+                        } else {
+                            null
+                        }
                     } else {
                         null
                     }
+                val stroke = Stroke(strokeWidthPx)
 
                 onDrawBehind {
                     val rect = rect ?: return@onDrawBehind
@@ -155,14 +200,25 @@ fun Modifier.liquidGlass(
                         }
                     }
 
-                    drawLayer(graphicsLayer)
-                    borderBrush?.let {
-                        drawOutline(
-                            outline = outline,
-                            brush = it,
-                            style = Stroke(borderWidthPx),
-                            blendMode = BlendMode.Plus
-                        )
+                    clipRect(0f, 0f, size.width, size.height) {
+                        drawLayer(graphicsLayer)
+                    }
+
+                    if (style.material.tint.isSpecified) {
+                        drawRect(style.material.tint)
+                    }
+
+                    if (border != null) {
+                        val (borderOutline, borderBrush) = border
+
+                        translate(borderTopLeft.x, borderTopLeft.y) {
+                            drawOutline(
+                                outline = borderOutline,
+                                brush = borderBrush,
+                                style = stroke,
+                                blendMode = BlendMode.Plus
+                            )
+                        }
                     }
                 }
             }

@@ -32,17 +32,18 @@ CompositionLocalProvider(
     Box(
         Modifier
             .liquidGlass(
-                remember {
-                    LiquidGlassStyle(
-                        shape = CornerShape.extraLarge,
+                LiquidGlassStyle(
+                    CornerShape.large,
+                    innerRefraction = InnerRefraction(
+                        height = RefractionValue(8.dp),
+                        amount = RefractionValue.Full
+                    ),
+                    material = GlassMaterial(
                         blurRadius = 8.dp,
-                        refractionHeight = 24.dp,
-                        refractionAmount = (-64).dp,
-                        whitePoint = 0.25f,
+                        whitePoint = 0.1f,
                         chromaMultiplier = 1.5f
-                        // ...
                     )
-                }
+                )
             )
     )
 }
@@ -63,9 +64,8 @@ CompositionLocalProvider(
 
 Other extensions:
 
-- Contrast
-- White point
-- Chroma multiplier
+- Border color, width, angle, decay
+- Contrast, white point, chroma multiplier
 - Eccentric factor
 - Dispersion height (🚧)
 

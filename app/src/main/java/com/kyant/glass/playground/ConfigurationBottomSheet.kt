@@ -1,7 +1,6 @@
 package com.kyant.glass.playground
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,10 @@ import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.expressa.ui.Text
 import com.kyant.glass.R
+import com.kyant.liquidglass.GlassMaterial
+import com.kyant.liquidglass.InnerRefraction
 import com.kyant.liquidglass.LiquidGlassStyle
+import com.kyant.liquidglass.RefractionValue
 import com.kyant.liquidglass.liquidGlass
 
 @Composable
@@ -46,18 +48,20 @@ fun ConfigurationBottomSheet(
             modifier
                 // .liquidGlassProvider(providerState)
                 .liquidGlass(
-                    remember(isDark) {
-                        LiquidGlassStyle(
-                            shape = CornerShape.extraLarge,
+                    LiquidGlassStyle(
+                        shape = CornerShape.extraLarge,
+                        innerRefraction = InnerRefraction(
+                            height = RefractionValue(24.dp),
+                            amount = RefractionValue((-64).dp)
+                        ),
+                        material = GlassMaterial(
                             blurRadius = 8.dp,
-                            refractionHeight = 24.dp,
-                            refractionAmount = (-64).dp,
+                            tint = surface.copy(alpha = 0.6f),
                             whitePoint = if (isDark) -0.25f else 0.25f,
                             chromaMultiplier = 1.5f
                         )
-                    }
+                    )
                 )
-                .background(surface.copy(alpha = 0.6f))
                 .pointerInput(Unit) {
                     detectTapGestures {}
                 }
@@ -84,7 +88,7 @@ fun ConfigurationBottomSheet(
 
                 IconButton(
                     { state.configurationMode = null },
-                    Modifier.liquidGlass(remember { LiquidGlassStyle(CornerShape.full) }),
+                    Modifier.liquidGlass(LiquidGlassStyle(CornerShape.full)),
                     colors = IconButtonColors.tonal(
                         containerColor = primaryContainer.copy(alpha = 0.85f)
                     )
@@ -133,7 +137,7 @@ fun ConfigurationBottomSheet(
                     ConfigurationMode.Advanced -> {
                         Button(
                             { state.unsafeMode = !state.unsafeMode },
-                            Modifier.liquidGlass(remember { LiquidGlassStyle(CornerShape.full) }),
+                            Modifier.liquidGlass(LiquidGlassStyle(CornerShape.full)),
                             colors = ButtonColors.filled(
                                 containerColor = primary.copy(alpha = 0.85f)
                             )
