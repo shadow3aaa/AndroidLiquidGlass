@@ -49,25 +49,25 @@ internal object LiquidGlassShaders {
         float2 halfSize = size * 0.5;
         float2 centeredCoord = coord - halfSize;
         float sd = sdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
-        sd = min(sd, 0.0);
         
-        if (sd <= 0.0 && -sd <= height) {
-            float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
-            float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
-            float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
-            
-            float refractedDistance = circleMap(1.0 - -sd / height) * amount;
-            float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
-            float2 refractedCoord = coord + refractedDistance * refractedDirection;
-            if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
-                refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
-                return half4(0.0, 0.0, 0.0, 1.0);
-            }
-            
-            return image.eval(refractedCoord);
-        } else {
+        if (-sd >= height) {
             return image.eval(coord);
         }
+        
+        sd = min(sd, 0.0);
+        float maxGradRadius = max(min(halfSize.x, halfSize.y), cornerRadius);
+        float gradRadius = min(cornerRadius * 1.5, maxGradRadius);
+        float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
+        
+        float refractedDistance = circleMap(1.0 - -sd / height) * amount;
+        float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
+        float2 refractedCoord = coord + refractedDistance * refractedDirection;
+        /*if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
+            refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {
+            return half4(0.0, 0.0, 0.0, 1.0);
+        }*/
+        
+        return image.eval(refractedCoord);
     }"""
 
     @Language("AGSL")
@@ -133,7 +133,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    val colorManipulationShaderString = """// This file belongs to Kyant. You must not use it without permission.
+    val materialShaderString = """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
     
     uniform float contrast;
@@ -156,7 +156,7 @@ internal object LiquidGlassShaders {
         
         color = saturateColor(color, chromaMultiplier);
         
-        float3 target = (whitePoint > 0.0) ? float3(1.0) : float3(0.0);
+        float3 target = float3(step(0.0, whitePoint));
         color.rgb = mix(color.rgb, target, abs(whitePoint));
         
         color.rgb = (color.rgb - 0.5) * (1.0 + contrast) + 0.5;

@@ -14,7 +14,7 @@ internal class LiquidGlassShadersCache() {
 
     fun getMaterialShader(): RuntimeShader {
         if (_materialShader == null) {
-            _materialShader = RuntimeShader(LiquidGlassShaders.colorManipulationShaderString)
+            _materialShader = RuntimeShader(LiquidGlassShaders.materialShaderString)
         }
         return _materialShader!!
     }
