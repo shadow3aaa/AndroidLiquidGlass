@@ -19,34 +19,31 @@ It doesn't support nested glass effects for now.
 ### Examples
 
 ```kotlin
-val providerState = rememberLiquidGlassProviderState()
+val providerState = rememberLiquidGlassProviderState(
+    backgroundColor = Color.White
+)
 
-CompositionLocalProvider(
-    LocalLiquidGlassProviderState provides providerState
-) {
-    Box(
-        Modifier
-            .liquidGlassProvider(providerState)
-    )
+// content behind the glass
+Box(Modifier.liquidGlassProvider(providerState))
 
-    Box(
-        Modifier
-            .liquidGlass(
-                LiquidGlassStyle(
-                    CornerShape.large,
-                    innerRefraction = InnerRefraction(
-                        height = RefractionValue(8.dp),
-                        amount = RefractionValue.Full
-                    ),
-                    material = GlassMaterial(
-                        blurRadius = 8.dp,
-                        whitePoint = 0.1f,
-                        chromaMultiplier = 1.5f
-                    )
-                )
+// glass
+Box(
+    Modifier.liquidGlass(
+        providerState,
+        LiquidGlassStyle(
+            CornerShape.large,
+            innerRefraction = InnerRefraction(
+                height = RefractionValue(8.dp),
+                amount = RefractionValue.Full
+            ),
+            material = GlassMaterial(
+                blurRadius = 8.dp,
+                whitePoint = 0.1f,
+                chromaMultiplier = 1.5f
             )
+        )
     )
-}
+)
 ```
 
 ## Glass parameters

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +26,7 @@ import com.kyant.expressa.ui.LocalTextStyle
 import com.kyant.expressa.ui.ProvideTextStyle
 import com.kyant.expressa.ui.Text
 import com.kyant.liquidglass.GlassMaterial
+import com.kyant.liquidglass.LiquidGlassProviderState
 import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.liquidGlass
 
@@ -35,6 +35,7 @@ fun <T : Comparable<T>> SliderChip(
     value: PreviewState.LiquidGlassParamValue<T>,
     label: String?,
     icon: @Composable () -> Unit,
+    providerState: LiquidGlassProviderState,
     modifier: Modifier = Modifier,
     dragDelta: (dragAmount: Offset) -> Float = { it.x }
 ) {
@@ -47,12 +48,11 @@ fun <T : Comparable<T>> SliderChip(
     Row(
         modifier
             .liquidGlass(
-                remember {
-                    LiquidGlassStyle(
-                        CornerShape.extraLarge,
-                        material = GlassMaterial(chromaMultiplier = 1.5f)
-                    )
-                }
+                providerState,
+                LiquidGlassStyle(
+                    CornerShape.extraLarge,
+                    material = GlassMaterial(chromaMultiplier = 1.5f)
+                )
             )
             .clip(CornerShape.full)
             .background(surfaceBright.copy(alpha = 0.85f))

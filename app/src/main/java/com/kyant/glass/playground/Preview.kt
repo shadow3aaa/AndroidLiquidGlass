@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +43,6 @@ import androidx.compose.ui.util.fastCoerceAtMost
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.shape.RoundedRectangle
 import com.kyant.glass.R
-import com.kyant.liquidglass.LocalLiquidGlassProviderState
 import com.kyant.liquidglass.liquidGlassProvider
 import com.kyant.liquidglass.rememberLiquidGlassProviderState
 import org.intellij.lang.annotations.Language
@@ -61,30 +59,28 @@ fun Preview() {
         state.imageBitmap?.let { BitmapPainter(it) }
             ?: painterResource(R.drawable.homescreen)
 
-    val providerState = rememberLiquidGlassProviderState()
-    CompositionLocalProvider(
-        LocalLiquidGlassProviderState provides providerState
-    ) {
-        Box(Modifier.fillMaxSize()) {
-            // background
-            Image(
-                painter, null,
-                Modifier
-                    .fillMaxSize()
-                    .drawWithContent {
-                        drawContent()
+    val providerState = rememberLiquidGlassProviderState(backgroundColor)
 
-                        graphicsLayer.record {
-                            drawRect(backgroundColor)
-                            this@drawWithContent.drawContent()
-                        }
+    Box(Modifier.fillMaxSize()) {
+        // background
+        Image(
+            painter, null,
+            Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+
+                    graphicsLayer.record {
+                        drawRect(backgroundColor)
+                        this@drawWithContent.drawContent()
                     }
-                    .liquidGlassProvider(providerState),
-                contentScale = ContentScale.Crop
-            )
+                }
+                .liquidGlassProvider(providerState),
+            contentScale = ContentScale.Crop
+        )
 
-            @Language("AGSL")
-            val colorShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+        @Language("AGSL")
+        val colorShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
     const half3 rgbToY = half3(0.2126, 0.7152, 0.0722);
     
     float luma(half4 color) {
@@ -92,8 +88,8 @@ fun Preview() {
     }
         """.trimIndent()
 
-            @Language("AGSL")
-            val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+        @Language("AGSL")
+        val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
     float circleMap(float x) {
         return 1.0 - sqrt(1.0 - x * x);
     }
@@ -147,24 +143,24 @@ fun Preview() {
     }
         """.trimIndent()
 
-            // glass
-            Box(
-                Modifier
-                    .graphicsLayer { // transform and clip
-                        translationX = state.offset.x
-                        translationY = state.offset.y
-                        clip = true
-                        shape = RoundedRectangle(state.cornerRadius.value)
-                    }
-                    .graphicsLayer { // white point & chroma boost
-                        val contrast = state.contrast.value
-                        val whitePoint = state.whitePoint.value
-                        val chromaMultiplier = state.chromaMultiplier.value
+        // glass
+        Box(
+            Modifier
+                .graphicsLayer { // transform and clip
+                    translationX = state.offset.x
+                    translationY = state.offset.y
+                    clip = true
+                    shape = RoundedRectangle(state.cornerRadius.value)
+                }
+                .graphicsLayer { // white point & chroma boost
+                    val contrast = state.contrast.value
+                    val whitePoint = state.whitePoint.value
+                    val chromaMultiplier = state.chromaMultiplier.value
 
-                        if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
-                            renderEffect = RenderEffect.createRuntimeShaderEffect(
-                                RuntimeShader(
-                                    """// This file belongs to Kyant. You must not use it without permission.
+                    if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
+                        renderEffect = RenderEffect.createRuntimeShaderEffect(
+                            RuntimeShader(
+                                """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
     
     uniform float contrast;
@@ -194,19 +190,19 @@ fun Preview() {
         
         return color;
     }"""
-                                ).apply {
-                                    setFloatUniform("contrast", contrast)
-                                    setFloatUniform("whitePoint", whitePoint)
-                                    setFloatUniform("chromaMultiplier", chromaMultiplier)
-                                },
-                                "image"
-                            ).asComposeRenderEffect()
-                        }
+                            ).apply {
+                                setFloatUniform("contrast", contrast)
+                                setFloatUniform("whitePoint", whitePoint)
+                                setFloatUniform("chromaMultiplier", chromaMultiplier)
+                            },
+                            "image"
+                        ).asComposeRenderEffect()
                     }
-                    .graphicsLayer { // dispersion effect
-                        renderEffect = RenderEffect.createRuntimeShaderEffect(
-                            RuntimeShader(
-                                """// This file belongs to Kyant. You must not use it without permission.
+                }
+                .graphicsLayer { // dispersion effect
+                    renderEffect = RenderEffect.createRuntimeShaderEffect(
+                        RuntimeShader(
+                            """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
     
     uniform float2 size;
@@ -295,22 +291,22 @@ fun Preview() {
             return color;
         }
     }"""
-                            ).apply {
-                                val cornerRadius =
-                                    state.cornerRadius.value.toPx()
-                                        .fastCoerceAtMost(size.minDimension / 2f)
+                        ).apply {
+                            val cornerRadius =
+                                state.cornerRadius.value.toPx()
+                                    .fastCoerceAtMost(size.minDimension / 2f)
 
-                                setFloatUniform("size", size.width, size.height)
-                                setFloatUniform("cornerRadius", cornerRadius)
-                                setFloatUniform("dispersionHeight", state.dispersionHeight.value.toPx())
-                            },
-                            "image"
-                        ).asComposeRenderEffect()
-                    }
-                    .graphicsLayer { // refraction & bleed
-                        val refractionRenderEffect = RenderEffect.createRuntimeShaderEffect(
-                            RuntimeShader(
-                                """// This file belongs to Kyant. You must not use it without permission.
+                            setFloatUniform("size", size.width, size.height)
+                            setFloatUniform("cornerRadius", cornerRadius)
+                            setFloatUniform("dispersionHeight", state.dispersionHeight.value.toPx())
+                        },
+                        "image"
+                    ).asComposeRenderEffect()
+                }
+                .graphicsLayer { // refraction & bleed
+                    val refractionRenderEffect = RenderEffect.createRuntimeShaderEffect(
+                        RuntimeShader(
+                            """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
     
     uniform float2 size;
@@ -335,22 +331,22 @@ fun Preview() {
             return color;
         }
     }"""
-                            ).apply {
-                                setFloatUniform("size", size.width, size.height)
-                                setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
+                        ).apply {
+                            setFloatUniform("size", size.width, size.height)
+                            setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
 
-                                setFloatUniform("refractionHeight", state.refractionHeight.value.toPx())
-                                setFloatUniform("refractionAmount", state.refractionAmount.value.toPx())
-                                setFloatUniform("eccentricFactor", state.eccentricFactor.value)
+                            setFloatUniform("refractionHeight", state.refractionHeight.value.toPx())
+                            setFloatUniform("refractionAmount", state.refractionAmount.value.toPx())
+                            setFloatUniform("eccentricFactor", state.eccentricFactor.value)
 
-                                setFloatUniform("bleedOpacity", state.bleedOpacity.value)
-                            },
-                            "image"
-                        )
+                            setFloatUniform("bleedOpacity", state.bleedOpacity.value)
+                        },
+                        "image"
+                    )
 
-                        val bleedRenderEffect = RenderEffect.createRuntimeShaderEffect(
-                            RuntimeShader(
-                                """// This file belongs to Kyant. You must not use it without permission.
+                    val bleedRenderEffect = RenderEffect.createRuntimeShaderEffect(
+                        RuntimeShader(
+                            """// This file belongs to Kyant. You must not use it without permission.
     uniform shader image;
     
     uniform float2 size;
@@ -368,110 +364,110 @@ fun Preview() {
         color.rgb = mix(color.rgb, half3(1.0), 0.5 * circleMap(1.0 - luma));
         return color;
     }"""
-                            ).apply {
-                                setFloatUniform("size", size.width, size.height)
-                                setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
+                        ).apply {
+                            setFloatUniform("size", size.width, size.height)
+                            setFloatUniform("cornerRadius", state.cornerRadius.value.toPx())
 
-                                setFloatUniform("eccentricFactor", state.eccentricFactor.value)
-                                setFloatUniform("bleedAmount", state.bleedAmount.value.toPx())
-                            },
-                            "image"
-                        )
+                            setFloatUniform("eccentricFactor", state.eccentricFactor.value)
+                            setFloatUniform("bleedAmount", state.bleedAmount.value.toPx())
+                        },
+                        "image"
+                    )
 
-                        renderEffect =
-                            if (state.bleedOpacity.value > 0f) {
-                                val bleedBlurRadiusPx = state.bleedBlurRadius.value.toPx()
-                                val blurredBleedRenderEffect =
-                                    if (bleedBlurRadiusPx > 0f) {
-                                        RenderEffect.createChainEffect(
-                                            bleedRenderEffect,
-                                            RenderEffect.createBlurEffect(
-                                                bleedBlurRadiusPx,
-                                                bleedBlurRadiusPx,
-                                                Shader.TileMode.CLAMP
-                                            )
+                    renderEffect =
+                        if (state.bleedOpacity.value > 0f) {
+                            val bleedBlurRadiusPx = state.bleedBlurRadius.value.toPx()
+                            val blurredBleedRenderEffect =
+                                if (bleedBlurRadiusPx > 0f) {
+                                    RenderEffect.createChainEffect(
+                                        bleedRenderEffect,
+                                        RenderEffect.createBlurEffect(
+                                            bleedBlurRadiusPx,
+                                            bleedBlurRadiusPx,
+                                            Shader.TileMode.CLAMP
                                         )
-                                    } else {
-                                        bleedRenderEffect
-                                    }
+                                    )
+                                } else {
+                                    bleedRenderEffect
+                                }
 
-                                RenderEffect.createBlendModeEffect(
-                                    blurredBleedRenderEffect,
-                                    refractionRenderEffect,
-                                    android.graphics.BlendMode.SRC_OVER
-                                ).asComposeRenderEffect()
-                            } else {
-                                refractionRenderEffect.asComposeRenderEffect()
-                            }
-                    }
-                    .graphicsLayer { // blur
-                        val blurRadiusPx = state.blurRadius.value.toPx()
-                        if (blurRadiusPx > 0f) {
-                            renderEffect =
-                                RenderEffect.createBlurEffect(
-                                    blurRadiusPx,
-                                    blurRadiusPx,
-                                    Shader.TileMode.DECAL
-                                ).asComposeRenderEffect()
+                            RenderEffect.createBlendModeEffect(
+                                blurredBleedRenderEffect,
+                                refractionRenderEffect,
+                                android.graphics.BlendMode.SRC_OVER
+                            ).asComposeRenderEffect()
+                        } else {
+                            refractionRenderEffect.asComposeRenderEffect()
                         }
-                    }
-                    .drawBehind {
-                        clipRect(0f, 0f, rect.width, rect.height) {
-                            translate(-rect.left, -rect.top) {
-                                drawLayer(graphicsLayer)
-                            }
-                        }
-                    }
-                    .onGloballyPositioned { layoutCoordinates ->
-                        rect = layoutCoordinates.boundsInParent()
-                    }
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            state.offset += pan
-                            state.size = DpSize(
-                                (state.size.width * zoom).coerceIn(
-                                    state.minSize.width,
-                                    containerSize.width.toDp()
-                                ),
-                                (state.size.height * zoom).coerceIn(
-                                    state.minSize.height,
-                                    containerSize.height.toDp()
-                                )
-                            )
-                        }
-                    }
-                    .layout { measurable, constraints ->
-                        val size = state.size.toSize().roundToIntSize()
-                        val width = size.width.fastCoerceAtMost(constraints.maxWidth)
-                        val height = size.height.fastCoerceAtMost(constraints.maxHeight)
-                        val placeable = measurable.measure(Constraints.fixed(width, height))
-
-                        layout(width, height) {
-                            placeable.place(0, 0)
-                        }
-                    }
-                    .align(Alignment.Center)
-            )
-
-            if (state.displayControls) {
-                PreviewControls(
-                    state,
-                    { rect }
-                )
-            }
-
-            AnimatedContent(
-                state.isInConfigurationMode,
-                Modifier
-                    .padding(16.dp)
-                    .safeDrawingPadding()
-                    .align(Alignment.BottomCenter)
-            ) { isInConfigurationMode ->
-                if (!isInConfigurationMode) {
-                    PreviewToolbar(state)
-                } else {
-                    ConfigurationBottomSheet(state)
                 }
+                .graphicsLayer { // blur
+                    val blurRadiusPx = state.blurRadius.value.toPx()
+                    if (blurRadiusPx > 0f) {
+                        renderEffect =
+                            RenderEffect.createBlurEffect(
+                                blurRadiusPx,
+                                blurRadiusPx,
+                                Shader.TileMode.DECAL
+                            ).asComposeRenderEffect()
+                    }
+                }
+                .drawBehind {
+                    clipRect(0f, 0f, rect.width, rect.height) {
+                        translate(-rect.left, -rect.top) {
+                            drawLayer(graphicsLayer)
+                        }
+                    }
+                }
+                .onGloballyPositioned { layoutCoordinates ->
+                    rect = layoutCoordinates.boundsInParent()
+                }
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        state.offset += pan
+                        state.size = DpSize(
+                            (state.size.width * zoom).coerceIn(
+                                state.minSize.width,
+                                containerSize.width.toDp()
+                            ),
+                            (state.size.height * zoom).coerceIn(
+                                state.minSize.height,
+                                containerSize.height.toDp()
+                            )
+                        )
+                    }
+                }
+                .layout { measurable, constraints ->
+                    val size = state.size.toSize().roundToIntSize()
+                    val width = size.width.fastCoerceAtMost(constraints.maxWidth)
+                    val height = size.height.fastCoerceAtMost(constraints.maxHeight)
+                    val placeable = measurable.measure(Constraints.fixed(width, height))
+
+                    layout(width, height) {
+                        placeable.place(0, 0)
+                    }
+                }
+                .align(Alignment.Center)
+        )
+
+        if (state.displayControls) {
+            PreviewControls(
+                state,
+                providerState,
+                rect = { rect }
+            )
+        }
+
+        AnimatedContent(
+            state.isInConfigurationMode,
+            Modifier
+                .padding(16.dp)
+                .safeDrawingPadding()
+                .align(Alignment.BottomCenter)
+        ) { isInConfigurationMode ->
+            if (!isInConfigurationMode) {
+                PreviewToolbar(state, providerState)
+            } else {
+                ConfigurationBottomSheet(state, providerState)
             }
         }
     }

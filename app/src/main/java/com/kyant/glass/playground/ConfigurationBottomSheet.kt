@@ -30,6 +30,7 @@ import com.kyant.expressa.ui.Text
 import com.kyant.glass.R
 import com.kyant.liquidglass.GlassMaterial
 import com.kyant.liquidglass.InnerRefraction
+import com.kyant.liquidglass.LiquidGlassProviderState
 import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.RefractionValue
 import com.kyant.liquidglass.liquidGlass
@@ -37,6 +38,7 @@ import com.kyant.liquidglass.liquidGlass
 @Composable
 fun ConfigurationBottomSheet(
     state: PreviewState,
+    providerState: LiquidGlassProviderState,
     modifier: Modifier = Modifier
 ) {
     // val providerState = rememberLiquidGlassProviderState()
@@ -48,6 +50,7 @@ fun ConfigurationBottomSheet(
             modifier
                 // .liquidGlassProvider(providerState)
                 .liquidGlass(
+                    providerState,
                     LiquidGlassStyle(
                         shape = CornerShape.extraLarge,
                         innerRefraction = InnerRefraction(
@@ -88,7 +91,7 @@ fun ConfigurationBottomSheet(
 
                 IconButton(
                     { state.configurationMode = null },
-                    Modifier.liquidGlass(LiquidGlassStyle(CornerShape.full)),
+                    Modifier.liquidGlass(providerState, LiquidGlassStyle(CornerShape.full)),
                     colors = IconButtonColors.tonal(
                         containerColor = primaryContainer.copy(alpha = 0.85f)
                     )
@@ -112,24 +115,28 @@ fun ConfigurationBottomSheet(
                             state.blurRadius,
                             stringResource(R.string.blur_radius),
                             { Icon(painterResource(R.drawable.lens_blur_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                         SliderChip(
                             state.contrast,
                             stringResource(R.string.contrast),
                             { Icon(painterResource(R.drawable.contrast_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                         SliderChip(
                             state.whitePoint,
                             stringResource(R.string.white_point),
                             { Icon(painterResource(R.drawable.wb_sunny_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                         SliderChip(
                             state.chromaMultiplier,
                             stringResource(R.string.chroma_multiplier),
                             { Icon(painterResource(R.drawable.palette_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                     }
@@ -137,7 +144,7 @@ fun ConfigurationBottomSheet(
                     ConfigurationMode.Advanced -> {
                         Button(
                             { state.unsafeMode = !state.unsafeMode },
-                            Modifier.liquidGlass(LiquidGlassStyle(CornerShape.full)),
+                            Modifier.liquidGlass(providerState, LiquidGlassStyle(CornerShape.full)),
                             colors = ButtonColors.filled(
                                 containerColor = primary.copy(alpha = 0.85f)
                             )
@@ -152,18 +159,21 @@ fun ConfigurationBottomSheet(
                             state.bleedBlurRadius,
                             stringResource(R.string.bleed_blur_radius),
                             { Icon(painterResource(R.drawable.lens_blur_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                         SliderChip(
                             state.eccentricFactor,
                             stringResource(R.string.eccentric_factor),
                             { Icon(painterResource(R.drawable.all_out_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                         SliderChip(
                             state.dispersionHeight,
                             stringResource(R.string.dispersion_height),
                             { Icon(painterResource(R.drawable.star_shine_24px)) },
+                            providerState,
                             Modifier.fillMaxWidth()
                         )
                     }

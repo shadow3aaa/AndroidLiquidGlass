@@ -4,7 +4,6 @@ import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,15 +36,14 @@ import androidx.compose.ui.unit.Constraints
 import kotlin.math.ceil
 import kotlin.math.min
 
-@Composable
 fun Modifier.liquidGlass(
-    style: LiquidGlassStyle,
-    providerState: LiquidGlassProviderState = LocalLiquidGlassProviderState.current
+    state: LiquidGlassProviderState,
+    style: LiquidGlassStyle
 ): Modifier =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         this then LiquidGlassElement(
-            style = style,
-            providerState = providerState
+            state = state,
+            style = style
         )
     } else {
         this
@@ -53,51 +51,51 @@ fun Modifier.liquidGlass(
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class LiquidGlassElement(
-    val style: LiquidGlassStyle,
-    val providerState: LiquidGlassProviderState
+    val state: LiquidGlassProviderState,
+    val style: LiquidGlassStyle
 ) : ModifierNodeElement<LiquidGlassModifierNode>() {
 
     override fun create(): LiquidGlassModifierNode {
         return LiquidGlassModifierNode(
-            style = style,
-            providerState = providerState
+            state = state,
+            style = style
         )
     }
 
     override fun update(node: LiquidGlassModifierNode) {
         node.update(
-            style = style,
-            providerState = providerState
+            state = state,
+            style = style
         )
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "liquidGlass"
+        properties["state"] = state
         properties["style"] = style
-        properties["providerState"] = providerState
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LiquidGlassElement) return false
 
+        if (state != other.state) return false
         if (style != other.style) return false
-        if (providerState != other.providerState) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = style.hashCode()
-        result = 31 * result + providerState.hashCode()
+        var result = state.hashCode()
+        result = 31 * result + style.hashCode()
         return result
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class LiquidGlassModifierNode(
-    var style: LiquidGlassStyle,
-    var providerState: LiquidGlassProviderState
+    var state: LiquidGlassProviderState,
+    var style: LiquidGlassStyle
 ) : LayoutModifierNode, GlobalPositionAwareModifierNode, DelegatingNode() {
 
     override val shouldAutoInvalidate: Boolean = false
@@ -260,7 +258,7 @@ internal class LiquidGlassModifierNode(
                     val rect = rect ?: return@onDrawBehind
                     graphicsLayer.record {
                         translate(-rect.left, -rect.top) {
-                            drawLayer(providerState.graphicsLayer)
+                            drawLayer(state.graphicsLayer)
                         }
                     }
                     drawLayer(graphicsLayer)
@@ -299,20 +297,20 @@ internal class LiquidGlassModifierNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        rect = providerState.rect?.let {
+        rect = state.rect?.let {
             coordinates.boundsInRoot().translate(-it.topLeft)
         }
     }
 
     fun update(
-        style: LiquidGlassStyle,
-        providerState: LiquidGlassProviderState
+        state: LiquidGlassProviderState,
+        style: LiquidGlassStyle
     ) {
-        if (this.style != style ||
-            this.providerState != providerState
+        if (this.state != state ||
+            this.style != style
         ) {
+            this.state = state
             this.style = style
-            this.providerState = providerState
             drawWithCacheModifierNode.invalidateDrawCache()
             invalidateSubtree()
         }

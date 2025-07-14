@@ -31,11 +31,13 @@ import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.glass.R
+import com.kyant.liquidglass.LiquidGlassProviderState
 import kotlin.math.sqrt
 
 @Composable
 fun PreviewControls(
     state: PreviewState,
+    providerState: LiquidGlassProviderState,
     rect: () -> Rect,
     modifier: Modifier = Modifier
 ) {
@@ -130,6 +132,7 @@ fun PreviewControls(
                     }
                 )
             },
+            providerState,
             Modifier
                 .graphicsLayer {
                     val rect = rect()
@@ -169,24 +172,28 @@ fun PreviewControls(
                 state.bleedAmount,
                 stringResource(R.string.bleed_amount),
                 { Icon(painterResource(R.drawable.center_focus_weak_24px)) },
+                providerState,
                 Modifier.fillMaxWidth()
             )
             SliderChip(
                 state.bleedOpacity,
                 stringResource(R.string.bleed_opacity),
                 { Icon(painterResource(R.drawable.opacity_24px)) },
+                providerState,
                 Modifier.fillMaxWidth()
             )
             SliderChip(
                 state.refractionAmount,
                 stringResource(R.string.refraction_amount),
                 { Icon(painterResource(R.drawable.center_focus_weak_24px)) },
+                providerState,
                 Modifier.fillMaxWidth()
             )
             SliderChip(
                 state.refractionHeight,
                 stringResource(R.string.refraction_height),
                 { Icon(painterResource(R.drawable.water_lux_24px)) },
+                providerState,
                 Modifier.fillMaxWidth()
             )
         }
