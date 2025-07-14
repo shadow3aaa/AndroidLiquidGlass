@@ -31,6 +31,7 @@ import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateSubtree
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.ceil
@@ -307,8 +308,13 @@ internal class LiquidGlassModifierNode(
         style: LiquidGlassStyle,
         providerState: LiquidGlassProviderState
     ) {
-        this.style = style
-        this.providerState = providerState
-        drawWithCacheModifierNode.invalidateDrawCache()
+        if (this.style != style ||
+            this.providerState != providerState
+        ) {
+            this.style = style
+            this.providerState = providerState
+            drawWithCacheModifierNode.invalidateDrawCache()
+            invalidateSubtree()
+        }
     }
 }

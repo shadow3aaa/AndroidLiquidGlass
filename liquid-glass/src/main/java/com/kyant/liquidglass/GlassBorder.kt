@@ -44,7 +44,7 @@ sealed interface GlassBorder {
 
     @Immutable
     data class Light(
-        override val color: Color = Color.White.copy(alpha = 0.6f),
+        override val color: Color = Color.White.copy(alpha = 0.3f),
         override val width: Dp = 1.dp,
         val angle: Float = 45f,
         val decay: Float = 2f
