@@ -6,6 +6,10 @@ Check the [demo app](./app/release/app-release.apk), Android 13 and above is req
 
 ![](./artworks/features.jpg)
 
+Here is a screenshot of a music player demo
+
+<img alt="Music player demo" height="400" src="./artworks/music_player_demo.jpg"/>
+
 ## Library
 
 The library is in alpha stage, every API may be changed, use it on your own risk.
