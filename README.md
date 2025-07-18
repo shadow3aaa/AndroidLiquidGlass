@@ -10,6 +10,22 @@ Check the [demo app](./app/release/app-release.apk), Android 13 and above is req
 
 The library is in alpha stage, every API may be changed, use it on your own risk.
 
+### Add to project
+
+[![JitPack Release](https://jitpack.io/v/Kyant0/AndroidLiquidGlass.svg)](https://jitpack.io/#Kyant0/AndroidLiquidGlass)
+
+```kotlin
+// settings.gradle.kts in root project
+dependencyResolutionManagement {
+    repositories {
+        maven("https://jitpack.io")
+    }
+}
+
+// build.gradle.kts in module
+implementation("com.github.Kyant0:AndroidLiquidGlass:<version>")
+```
+
 ### Examples
 
 ```kotlin
@@ -38,6 +54,25 @@ Box(
         )
     )
 )
+```
+
+### Limitations
+
+The following case is not supported:
+
+```kotlin
+LiquidGlassProvider(providerState) {
+    LiquidGlass(providerState) {}
+}
+```
+
+Instead, you should rewrite it like this:
+
+```kotlin
+Box {
+    LiquidGlassProvider(providerState) {}
+    LiquidGlass(providerState) {}
+}
 ```
 
 ## Glass parameters
