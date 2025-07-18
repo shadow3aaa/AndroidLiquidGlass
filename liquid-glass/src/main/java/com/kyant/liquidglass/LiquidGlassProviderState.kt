@@ -1,6 +1,7 @@
 package com.kyant.liquidglass
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,7 @@ fun rememberLiquidGlassProviderState(
     }
 }
 
+@Stable
 class LiquidGlassProviderState internal constructor(
     val backgroundColor: Color?,
     internal val graphicsLayer: GraphicsLayer
