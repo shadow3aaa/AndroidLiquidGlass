@@ -13,7 +13,7 @@ data class GlassMaterial(
     val tint: Color = Color.Unspecified,
     @param:FloatRange(from = -1.0, to = 1.0) val contrast: Float = 0f,
     @param:FloatRange(from = -1.0, to = 1.0) val whitePoint: Float = 0f,
-    @param:FloatRange(from = 0.5, to = 2.0) val chromaMultiplier: Float = 1f
+    @param:FloatRange(from = 0.0, to = 2.0) val chromaMultiplier: Float = 1.5f
 ) {
 
     companion object {

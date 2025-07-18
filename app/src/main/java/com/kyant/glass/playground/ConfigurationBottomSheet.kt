@@ -60,8 +60,7 @@ fun ConfigurationBottomSheet(
                         material = GlassMaterial(
                             blurRadius = 8.dp,
                             tint = surface.copy(alpha = 0.6f),
-                            whitePoint = if (isDark) -0.25f else 0.25f,
-                            chromaMultiplier = 1.5f
+                            whitePoint = if (isDark) -0.25f else 0.25f
                         )
                     )
                 )

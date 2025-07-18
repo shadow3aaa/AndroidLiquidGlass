@@ -48,7 +48,7 @@ Box(
             shape = CornerShape.large,
             innerRefraction = InnerRefraction(
                 height = RefractionValue(8.dp),
-                amount = RefractionValue.Full
+                amount = RefractionValue.Full // or any negative value like RefractionValue((-16).dp)
             ),
             material = GlassMaterial(
                 blurRadius = 8.dp,
