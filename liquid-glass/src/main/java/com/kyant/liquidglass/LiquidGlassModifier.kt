@@ -283,7 +283,7 @@ internal class LiquidGlassModifierNode(
             }
         )
 
-    val layerBlock: GraphicsLayerScope.() -> Unit = {
+    private val layerBlock: GraphicsLayerScope.() -> Unit = {
         compositingStrategy = CompositingStrategy.Offscreen
         clip = true
         shape = style.shape

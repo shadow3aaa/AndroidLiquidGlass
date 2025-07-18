@@ -80,7 +80,7 @@ fun Preview() {
         )
 
         @Language("AGSL")
-        val colorShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+        val colorShaderUtils = """
     const half3 rgbToY = half3(0.2126, 0.7152, 0.0722);
     
     float luma(half4 color) {
@@ -89,7 +89,7 @@ fun Preview() {
         """.trimIndent()
 
         @Language("AGSL")
-        val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+        val refractionShaderUtils = """
     float circleMap(float x) {
         return 1.0 - sqrt(1.0 - x * x);
     }
@@ -160,7 +160,7 @@ fun Preview() {
                     if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
                         renderEffect = RenderEffect.createRuntimeShaderEffect(
                             RuntimeShader(
-                                """// This file belongs to Kyant. You must not use it without permission.
+                                """
     uniform shader image;
     
     uniform float contrast;
@@ -202,7 +202,7 @@ fun Preview() {
                 .graphicsLayer { // dispersion effect
                     renderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
-                            """// This file belongs to Kyant. You must not use it without permission.
+                            """
     uniform shader image;
     
     uniform float2 size;
@@ -306,7 +306,7 @@ fun Preview() {
                 .graphicsLayer { // refraction & bleed
                     val refractionRenderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
-                            """// This file belongs to Kyant. You must not use it without permission.
+                            """
     uniform shader image;
     
     uniform float2 size;
@@ -346,7 +346,7 @@ fun Preview() {
 
                     val bleedRenderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
-                            """// This file belongs to Kyant. You must not use it without permission.
+                            """
     uniform shader image;
     
     uniform float2 size;

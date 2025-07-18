@@ -55,7 +55,7 @@ sealed interface GlassBorder {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ShaderBrush(
                     RuntimeShader(
-                        """// This file belongs to Kyant. You must not use it without permission.
+                        """
         ${LiquidGlassShaders.sdRectangleShaderUtils}
         
         half4 main(float2 coord) {

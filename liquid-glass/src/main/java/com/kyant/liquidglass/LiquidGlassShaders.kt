@@ -5,7 +5,7 @@ import org.intellij.lang.annotations.Language
 internal object LiquidGlassShaders {
 
     @Language("AGSL")
-    private val colorShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+    private val colorShaderUtils = """
     const half3 rgbToY = half3(0.2126, 0.7152, 0.0722);
     
     float luma(half4 color) {
@@ -13,7 +13,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    internal val sdRectangleShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+    internal val sdRectangleShaderUtils = """
     float sdRectangle(float2 coord, float2 halfSize) {
         float2 d = abs(coord) - halfSize;
         float outside = length(max(d, 0.0));
@@ -38,7 +38,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    private val refractionShaderUtils = """// This file belongs to Kyant. You must not use it without permission.
+    private val refractionShaderUtils = """
     $sdRectangleShaderUtils
     
     float circleMap(float x) {
@@ -71,7 +71,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    val refractionShaderWithBleedString = """// This file belongs to Kyant. You must not use it without permission.
+    val refractionShaderWithBleedString = """
     uniform shader image;
     
     uniform float2 size;
@@ -94,7 +94,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    val refractionShaderString = """// This file belongs to Kyant. You must not use it without permission.
+    val refractionShaderString = """
     uniform shader image;
     
     uniform float2 size;
@@ -113,7 +113,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    val bleedShaderString = """// This file belongs to Kyant. You must not use it without permission.
+    val bleedShaderString = """
     uniform shader image;
     
     uniform float2 size;
@@ -133,7 +133,7 @@ internal object LiquidGlassShaders {
     }"""
 
     @Language("AGSL")
-    val materialShaderString = """// This file belongs to Kyant. You must not use it without permission.
+    val materialShaderString = """
     uniform shader image;
     
     uniform float contrast;
