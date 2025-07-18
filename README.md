@@ -1,20 +1,14 @@
-# Android Liquid Glass
+# Liquid Glass
 
-An Android app that simulates Apple's Liquid Glass effect, Android 13 and above is required.
+Apple's Liquid Glass effect for Android Jetpack Compose.
 
-Download the app [here](./app/release/app-release.apk).
+Check the [demo app](./app/release/app-release.apk), Android 13 and above is required.
 
 ![](./artworks/features.jpg)
 
-## About shaders
-
-You mustn't use the shaders in the project for commercial purposes, they are only for educational purposes.
-
 ## Library
 
-The library is under construction, use on your own risk.
-
-It doesn't support nested glass effects for now.
+The library is in alpha stage, every API may be changed, use it on your own risk.
 
 ### Examples
 
@@ -31,7 +25,7 @@ Box(
     Modifier.liquidGlass(
         providerState,
         LiquidGlassStyle(
-            CornerShape.large,
+            shape = CornerShape.large,
             innerRefraction = InnerRefraction(
                 height = RefractionValue(8.dp),
                 amount = RefractionValue.Full
@@ -55,9 +49,9 @@ Box(
 | Outer refraction height | ❌            | ❌            |
 | Outer refraction amount | ❌            | ❌            |
 |      Bleed amount       | ✔️           | ❌            |
-|    Bleed blur radius    | ✔️           | ❌            |
-|      Bleed opacity      | ✔️           | 🚧           |
-|       Blur radius       | ✔️           | ❌            |
+|    Bleed blur radius    | ✔️           | -            |
+|      Bleed opacity      | ✔️           | ❌            |
+|       Blur radius       | ✔️           | -            |
 
 Other extensions:
 
