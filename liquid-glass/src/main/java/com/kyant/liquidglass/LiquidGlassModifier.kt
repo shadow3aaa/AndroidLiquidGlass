@@ -112,7 +112,7 @@ internal class LiquidGlassModifierNode(
                         RenderEffect.createBlurEffect(
                             contentBlurRadiusPx,
                             contentBlurRadiusPx,
-                            Shader.TileMode.DECAL
+                            Shader.TileMode.CLAMP
                         )
                     } else {
                         RenderEffect.createOffsetEffect(0f, 0f)

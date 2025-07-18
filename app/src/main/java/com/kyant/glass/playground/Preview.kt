@@ -407,7 +407,7 @@ fun Preview() {
                             RenderEffect.createBlurEffect(
                                 blurRadiusPx,
                                 blurRadiusPx,
-                                Shader.TileMode.DECAL
+                                Shader.TileMode.CLAMP
                             ).asComposeRenderEffect()
                     }
                 }
