@@ -8,6 +8,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 
 @Immutable
@@ -27,7 +28,7 @@ sealed interface GlassBorder {
     @Immutable
     data class Highlight(
         val angle: Float = 45f,
-        val decay: Float = 2f
+        val decay: Float = 1f
     ) : GlassBorder {
 
         private var highlightShaderCache: RuntimeShader? = null
@@ -37,8 +38,8 @@ sealed interface GlassBorder {
                 val blurRenderEffect =
                     cachedBlurRenderEffect
                         ?: RenderEffect.createBlurEffect(
-                            2f,
-                            2f,
+                            with(density) { 0.5f.dp.toPx() },
+                            with(density) { 0.5f.dp.toPx() },
                             Shader.TileMode.DECAL
                         ).also { cachedBlurRenderEffect = it }
 

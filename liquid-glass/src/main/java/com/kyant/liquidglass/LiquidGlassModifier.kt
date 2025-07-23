@@ -240,19 +240,17 @@ internal class LiquidGlassModifierNode(
                 graphicsLayer?.renderEffect = renderEffect.asComposeRenderEffect()
 
                 if (style.border != GlassBorder.None) {
-                    val borderRenderEffect = style.border.createRenderEffect(this, size, cornerRadiusPx)
-
                     borderGraphicsLayer?.let { layer ->
+                        val borderOutline = style.shape.createOutline(size, layoutDirection, this)
+                        val borderRenderEffect = style.border.createRenderEffect(this, size, cornerRadiusPx)
+
                         layer.renderEffect = borderRenderEffect?.asComposeRenderEffect()
                         layer.blendMode = BlendMode.Plus
-
-                        val borderOutline = style.shape.createOutline(size, layoutDirection, this)
-
                         layer.record {
                             drawOutline(
                                 outline = borderOutline,
-                                brush = SolidColor(Color.White),
-                                style = Stroke(1.5f.dp.toPx())
+                                brush = SolidColor(Color.White.copy(alpha = 0.4f)),
+                                style = Stroke(2.dp.toPx())
                             )
                         }
                     }
@@ -304,21 +302,27 @@ internal class LiquidGlassModifierNode(
     }
 
     override fun onAttach() {
+        val graphicsContext = requireGraphicsContext()
         graphicsLayer =
-            requireGraphicsContext().createGraphicsLayer().apply {
+            graphicsContext.createGraphicsLayer().apply {
                 compositingStrategy = androidx.compose.ui.graphics.layer.CompositingStrategy.Offscreen
             }
         borderGraphicsLayer =
-            requireGraphicsContext().createGraphicsLayer().apply {
+            graphicsContext.createGraphicsLayer().apply {
                 compositingStrategy = androidx.compose.ui.graphics.layer.CompositingStrategy.Offscreen
             }
     }
 
     override fun onDetach() {
-        graphicsLayer?.let { layer -> requireGraphicsContext().releaseGraphicsLayer(layer) }
-        borderGraphicsLayer?.let { layer -> requireGraphicsContext().releaseGraphicsLayer(layer) }
-        graphicsLayer = null
-        borderGraphicsLayer = null
+        val graphicsContext = requireGraphicsContext()
+        graphicsLayer?.let { layer ->
+            graphicsContext.releaseGraphicsLayer(layer)
+            graphicsLayer = null
+        }
+        borderGraphicsLayer?.let { layer ->
+            graphicsContext.releaseGraphicsLayer(layer)
+            borderGraphicsLayer = null
+        }
     }
 
     fun update(

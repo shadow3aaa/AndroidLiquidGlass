@@ -180,7 +180,7 @@ internal object LiquidGlassShaders {
         
         float2 grad = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
         float2 topLightNormal = float2(-cos(angle), -sin(angle));
-        float topLightFraction = dot(topLightNormal, grad) * 0.7;
+        float topLightFraction = dot(topLightNormal, grad);
         float bottomLightFraction = -topLightFraction;
         float fraction = pow(max(topLightFraction, bottomLightFraction), decay);
         
