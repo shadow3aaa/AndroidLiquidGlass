@@ -9,17 +9,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
@@ -30,11 +31,11 @@ import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.invalidateSubtree
+import androidx.compose.ui.node.invalidateLayer
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
-import kotlin.math.ceil
-import kotlin.math.min
+import androidx.compose.ui.unit.dp
 
 fun Modifier.liquidGlass(
     state: LiquidGlassProviderState,
@@ -102,6 +103,9 @@ internal class LiquidGlassModifierNode(
 
     private val shadersCache = LiquidGlassShadersCache()
     private var rect: Rect? by mutableStateOf(null)
+
+    private var graphicsLayer: GraphicsLayer? = null
+    private var borderGraphicsLayer: GraphicsLayer? = null
 
     private val drawWithCacheModifierNode =
         delegate(
@@ -228,56 +232,52 @@ internal class LiquidGlassModifierNode(
                         RenderEffect.createChainEffect(
                             materialRenderEffect,
                             refractionWithBleedRenderEffect
-                        ).asComposeRenderEffect()
+                        )
                     } else {
-                        refractionWithBleedRenderEffect.asComposeRenderEffect()
+                        refractionWithBleedRenderEffect
                     }
 
-                val graphicsLayer = obtainGraphicsLayer()
-                graphicsLayer.renderEffect = renderEffect
+                graphicsLayer?.renderEffect = renderEffect.asComposeRenderEffect()
 
-                val strokeWidthPx = ceil(min(style.border.width.toPx(), size.minDimension / 2))
-                val halfStroke = strokeWidthPx / 2
-                val borderTopLeft = Offset(halfStroke, halfStroke)
-                val borderSize = Size(size.width - strokeWidthPx, size.height - strokeWidthPx)
-                val border =
-                    if (strokeWidthPx > 0f) {
-                        val borderBrush = style.border.createBrush(this, borderSize, cornerRadiusPx)
-                        if (borderBrush != null) {
-                            val borderOutline = style.shape.createOutline(borderSize, layoutDirection, this)
-                            Pair(borderOutline, borderBrush)
-                        } else {
-                            null
+                if (style.border != GlassBorder.None) {
+                    val borderRenderEffect = style.border.createRenderEffect(this, size, cornerRadiusPx)
+
+                    borderGraphicsLayer?.let { layer ->
+                        layer.renderEffect = borderRenderEffect?.asComposeRenderEffect()
+                        layer.blendMode = BlendMode.Plus
+
+                        val borderOutline = style.shape.createOutline(size, layoutDirection, this)
+
+                        layer.record {
+                            drawOutline(
+                                outline = borderOutline,
+                                brush = SolidColor(Color.White),
+                                style = Stroke(1.5f.dp.toPx())
+                            )
                         }
-                    } else {
-                        null
                     }
-                val stroke = Stroke(strokeWidthPx)
+                }
 
                 onDrawBehind {
                     val rect = rect ?: return@onDrawBehind
-                    graphicsLayer.record {
-                        translate(-rect.left, -rect.top) {
-                            drawLayer(state.graphicsLayer)
+                    graphicsLayer?.let { layer ->
+                        layer.record {
+                            translate(-rect.left, -rect.top) {
+                                drawLayer(state.graphicsLayer)
+                            }
                         }
+                        drawLayer(layer)
                     }
-                    drawLayer(graphicsLayer)
 
                     if (style.material.tint.isSpecified) {
-                        drawRect(style.material.tint)
+                        drawRect(
+                            color = style.material.tint,
+                            blendMode = style.material.blendMode
+                        )
                     }
 
-                    if (border != null) {
-                        val (borderOutline, borderBrush) = border
-
-                        translate(borderTopLeft.x, borderTopLeft.y) {
-                            drawOutline(
-                                outline = borderOutline,
-                                brush = borderBrush,
-                                style = stroke,
-                                blendMode = BlendMode.Plus
-                            )
-                        }
+                    borderGraphicsLayer?.let { layer ->
+                        drawLayer(layer)
                     }
                 }
             }
@@ -291,6 +291,7 @@ internal class LiquidGlassModifierNode(
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
         val placeable = measurable.measure(constraints)
+
         return layout(placeable.width, placeable.height) {
             placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
         }
@@ -300,6 +301,24 @@ internal class LiquidGlassModifierNode(
         rect = state.rect?.let {
             coordinates.boundsInRoot().translate(-it.topLeft)
         }
+    }
+
+    override fun onAttach() {
+        graphicsLayer =
+            requireGraphicsContext().createGraphicsLayer().apply {
+                compositingStrategy = androidx.compose.ui.graphics.layer.CompositingStrategy.Offscreen
+            }
+        borderGraphicsLayer =
+            requireGraphicsContext().createGraphicsLayer().apply {
+                compositingStrategy = androidx.compose.ui.graphics.layer.CompositingStrategy.Offscreen
+            }
+    }
+
+    override fun onDetach() {
+        graphicsLayer?.let { layer -> requireGraphicsContext().releaseGraphicsLayer(layer) }
+        borderGraphicsLayer?.let { layer -> requireGraphicsContext().releaseGraphicsLayer(layer) }
+        graphicsLayer = null
+        borderGraphicsLayer = null
     }
 
     fun update(
@@ -312,7 +331,7 @@ internal class LiquidGlassModifierNode(
             this.state = state
             this.style = style
             drawWithCacheModifierNode.invalidateDrawCache()
-            invalidateSubtree()
+            invalidateLayer()
         }
     }
 }

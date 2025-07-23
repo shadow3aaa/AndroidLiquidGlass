@@ -83,7 +83,6 @@ internal object LiquidGlassShaders {
     
     uniform float bleedOpacity;
     
-    $colorShaderUtils
     $refractionShaderUtils
     
     half4 main(float2 coord) {
@@ -162,5 +161,29 @@ internal object LiquidGlassShaders {
         color.rgb = (color.rgb - 0.5) * (1.0 + contrast) + 0.5;
         
         return color;
+    }"""
+
+    @Language("AGSL")
+    val highlightShaderString = """
+    uniform shader image;
+    
+    uniform float2 size;
+    uniform float cornerRadius;
+    uniform float angle;
+    uniform float decay;
+    
+    $sdRectangleShaderUtils
+    
+    half4 main(float2 coord) {
+        float2 halfSize = size * 0.5;
+        float2 centeredCoord = coord - halfSize;
+        
+        float2 grad = gradSdRoundedRectangle(centeredCoord, halfSize, cornerRadius);
+        float2 topLightNormal = float2(-cos(angle), -sin(angle));
+        float topLightFraction = dot(topLightNormal, grad) * 0.7;
+        float bottomLightFraction = -topLightFraction;
+        float fraction = pow(max(topLightFraction, bottomLightFraction), decay);
+        
+        return image.eval(coord) * fraction;
     }"""
 }
