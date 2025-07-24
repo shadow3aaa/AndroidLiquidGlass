@@ -48,7 +48,7 @@ Box(
             shape = CornerShape.large,
             innerRefraction = InnerRefraction(
                 height = RefractionValue(8.dp),
-                amount = RefractionValue.Full // or any negative value like RefractionValue((-16).dp)
+                amount = RefractionValue((-16).dp)
             ),
             material = GlassMaterial(
                 blurRadius = 8.dp,
@@ -94,7 +94,7 @@ Box {
 
 Other extensions:
 
-- Border color, width, angle, decay
+- Highlight (border) width, angle, decay
 - Contrast, white point, chroma multiplier
 - Eccentric factor
 - Dispersion height (🚧)
