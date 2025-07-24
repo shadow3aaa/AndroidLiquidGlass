@@ -35,7 +35,7 @@ import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 
 fun Modifier.liquidGlass(
     state: LiquidGlassProviderState,
@@ -239,7 +239,8 @@ internal class LiquidGlassModifierNode(
 
                 graphicsLayer?.renderEffect = renderEffect.asComposeRenderEffect()
 
-                if (style.border != GlassBorder.None) {
+                val borderWidth = style.border.width
+                if (style.border.width.isSpecified) {
                     borderGraphicsLayer?.let { layer ->
                         val borderOutline = style.shape.createOutline(size, layoutDirection, this)
                         val borderRenderEffect = style.border.createRenderEffect(this, size, cornerRadiusPx)
@@ -249,8 +250,8 @@ internal class LiquidGlassModifierNode(
                         layer.record {
                             drawOutline(
                                 outline = borderOutline,
-                                brush = SolidColor(Color.White.copy(alpha = 0.4f)),
-                                style = Stroke(2.dp.toPx())
+                                brush = SolidColor(Color.White.copy(alpha = style.border.intensity)),
+                                style = Stroke(borderWidth.toPx())
                             )
                         }
                     }

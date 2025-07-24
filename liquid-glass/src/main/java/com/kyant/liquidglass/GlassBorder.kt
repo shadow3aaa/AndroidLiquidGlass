@@ -4,15 +4,22 @@ import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import android.os.Build
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 
 @Immutable
 sealed interface GlassBorder {
+
+    val width: Dp
+
+    @get:FloatRange(from = 0.0, to = 1.0)
+    val intensity: Float
 
     @Stable
     fun createRenderEffect(density: Density, size: Size, cornerRadius: Float): RenderEffect? {
@@ -20,13 +27,23 @@ sealed interface GlassBorder {
     }
 
     @Immutable
-    data object None : GlassBorder
+    data object None : GlassBorder {
+
+        override val width: Dp = Dp.Unspecified
+
+        override val intensity: Float = 0f
+    }
 
     @Immutable
-    data object Solid : GlassBorder
+    data class Solid(
+        override val width: Dp = 2.dp,
+        @param:FloatRange(from = 0.0, to = 1.0) override val intensity: Float = 0.4f
+    ) : GlassBorder
 
     @Immutable
     data class Highlight(
+        override val width: Dp = 2.dp,
+        @param:FloatRange(from = 0.0, to = 1.0) override val intensity: Float = 0.4f,
         val angle: Float = 45f,
         val decay: Float = 1f
     ) : GlassBorder {
