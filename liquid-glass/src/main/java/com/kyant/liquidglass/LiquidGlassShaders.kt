@@ -83,6 +83,7 @@ internal object LiquidGlassShaders {
     
     uniform float bleedOpacity;
     
+    $colorShaderUtils
     $refractionShaderUtils
     
     half4 main(float2 coord) {
@@ -103,7 +104,6 @@ internal object LiquidGlassShaders {
     uniform float refractionAmount;
     uniform float eccentricFactor;
     
-    $colorShaderUtils
     $refractionShaderUtils
     
     half4 main(float2 coord) {
