@@ -8,7 +8,7 @@ Check the [demo app](./app/release/app-release.apk), Android 13 and above is req
 
 Here is a screenshot of a music player demo
 
-<img alt="Music player demo" height="400" src="./artworks/music_player_demo.jpg"/>
+<img alt="Music player demo" height="400" src="./artworks/music_player_demo.png"/>
 
 ## Library
 

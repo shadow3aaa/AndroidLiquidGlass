@@ -10,8 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.SolidColor
@@ -240,17 +238,18 @@ internal class LiquidGlassModifierNode(
                 graphicsLayer?.renderEffect = renderEffect.asComposeRenderEffect()
 
                 val borderWidth = style.border.width
-                if (style.border.width.isSpecified) {
+                val borderColor = style.border.color
+                if (borderWidth.isSpecified && borderColor.isSpecified) {
                     borderGraphicsLayer?.let { layer ->
                         val borderOutline = style.shape.createOutline(size, layoutDirection, this)
                         val borderRenderEffect = style.border.createRenderEffect(this, size, cornerRadiusPx)
 
                         layer.renderEffect = borderRenderEffect?.asComposeRenderEffect()
-                        layer.blendMode = BlendMode.Plus
+                        layer.blendMode = style.border.blendMode
                         layer.record {
                             drawOutline(
                                 outline = borderOutline,
-                                brush = SolidColor(Color.White.copy(alpha = style.border.intensity)),
+                                brush = SolidColor(borderColor),
                                 style = Stroke(borderWidth.toPx())
                             )
                         }

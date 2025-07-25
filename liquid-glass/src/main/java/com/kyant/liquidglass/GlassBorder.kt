@@ -4,10 +4,11 @@ import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import android.os.Build
-import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -18,8 +19,9 @@ sealed interface GlassBorder {
 
     val width: Dp
 
-    @get:FloatRange(from = 0.0, to = 1.0)
-    val intensity: Float
+    val color: Color
+
+    val blendMode: BlendMode
 
     @Stable
     fun createRenderEffect(density: Density, size: Size, cornerRadius: Float): RenderEffect? {
@@ -31,21 +33,25 @@ sealed interface GlassBorder {
 
         override val width: Dp = Dp.Unspecified
 
-        override val intensity: Float = 0f
+        override val color: Color = Color.Unspecified
+
+        override val blendMode: BlendMode = BlendMode.SrcOver
     }
 
     @Immutable
     data class Solid(
         override val width: Dp = 2.dp,
-        @param:FloatRange(from = 0.0, to = 1.0) override val intensity: Float = 0.4f
+        override val color: Color = Color.White,
+        override val blendMode: BlendMode = BlendMode.Overlay
     ) : GlassBorder
 
     @Immutable
     data class Highlight(
         override val width: Dp = 2.dp,
-        @param:FloatRange(from = 0.0, to = 1.0) override val intensity: Float = 0.4f,
+        override val color: Color = Color.White,
+        override val blendMode: BlendMode = BlendMode.Overlay,
         val angle: Float = 45f,
-        val decay: Float = 1f
+        val decay: Float = 1.5f
     ) : GlassBorder {
 
         private var highlightShaderCache: RuntimeShader? = null
