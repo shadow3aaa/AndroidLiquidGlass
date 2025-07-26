@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.isSpecified
 
 fun Modifier.liquidGlass(
     state: LiquidGlassProviderState,
-    style: LiquidGlassStyle
+    style: () -> LiquidGlassStyle
 ): Modifier =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         this then LiquidGlassElement(
@@ -48,10 +48,23 @@ fun Modifier.liquidGlass(
         this
     }
 
+fun Modifier.liquidGlass(
+    state: LiquidGlassProviderState,
+    style: LiquidGlassStyle
+): Modifier =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        this then LiquidGlassElement(
+            state = state,
+            style = { style }
+        )
+    } else {
+        this
+    }
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class LiquidGlassElement(
     val state: LiquidGlassProviderState,
-    val style: LiquidGlassStyle
+    val style: () -> LiquidGlassStyle
 ) : ModifierNodeElement<LiquidGlassModifierNode>() {
 
     override fun create(): LiquidGlassModifierNode {
@@ -94,7 +107,7 @@ private class LiquidGlassElement(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class LiquidGlassModifierNode(
     var state: LiquidGlassProviderState,
-    var style: LiquidGlassStyle
+    var style: () -> LiquidGlassStyle
 ) : LayoutModifierNode, GlobalPositionAwareModifierNode, DelegatingNode() {
 
     override val shouldAutoInvalidate: Boolean = false
@@ -108,6 +121,8 @@ internal class LiquidGlassModifierNode(
     private val drawWithCacheModifierNode =
         delegate(
             CacheDrawModifierNode {
+                val style = style()
+
                 val contentBlurRadiusPx = style.material.blurRadius.toPx()
                 val contentRenderEffect =
                     if (contentBlurRadiusPx > 0f) {
@@ -284,7 +299,7 @@ internal class LiquidGlassModifierNode(
     private val layerBlock: GraphicsLayerScope.() -> Unit = {
         compositingStrategy = CompositingStrategy.Offscreen
         clip = true
-        shape = style.shape
+        shape = style().shape
     }
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
@@ -327,7 +342,7 @@ internal class LiquidGlassModifierNode(
 
     fun update(
         state: LiquidGlassProviderState,
-        style: LiquidGlassStyle
+        style: () -> LiquidGlassStyle
     ) {
         if (this.state != state ||
             this.style != style
