@@ -63,6 +63,29 @@ Box(
 )
 ```
 
+#### [Experimental] Dynamically adjusted tint by content behind the glass
+
+```kotlin
+val luminanceSampler = remember { ContinuousLuminanceSampler() }
+
+liquidGlass(
+    providerState,
+    luminanceSampler = luminanceSampler
+) {
+    val luminance = luminanceSampler.luminance
+
+    GlassStyle(
+        // ...
+        material = GlassMaterial(
+            brush = SolidColor(Color.White), // or Color.Black
+            alpha = luminance // write down your own logic here
+        )
+    )
+}
+```
+
+See [here](./glassmusic/src/main/java/com/kyant/glassmusic/BottomTabs.kt#L129) for more details.
+
 ### Limitations
 
 The following case is not supported:

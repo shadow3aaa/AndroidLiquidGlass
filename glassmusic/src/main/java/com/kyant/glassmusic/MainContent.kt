@@ -128,7 +128,8 @@ fun MainContent() {
         ) {
             Row(
                 Modifier
-                    .liquidGlass(liquidGlassProviderState) {
+                    .liquidGlass(
+                        liquidGlassProviderState,
                         GlassStyle(
                             CornerShape.full,
                             innerRefraction = InnerRefraction(
@@ -141,7 +142,7 @@ fun MainContent() {
                                 alpha = 0.5f
                             )
                         )
-                    }
+                    )
                     .height(56.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),

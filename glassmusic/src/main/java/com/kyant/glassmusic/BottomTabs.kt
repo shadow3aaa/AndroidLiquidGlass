@@ -65,6 +65,8 @@ import com.kyant.liquidglass.sampler.ContinuousLuminanceSampler
 import com.kyant.liquidglass.sampler.ExperimentalLuminanceSamplerApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -87,9 +89,11 @@ fun <T> BottomTabs(
     val contentColor = remember { Animatable(initialContentColor) }
     LaunchedEffect(luminanceSampler) {
         snapshotFlow { luminanceSampler.luminance.pow(2f) }
-            .collectLatest { luminance ->
+            .map { luminance -> luminance > 0.5f }
+            .distinctUntilChanged()
+            .collectLatest { isLight ->
                 contentColor.animateTo(
-                    if (luminance > 0.5f) Color.Black else Color.White,
+                    if (isLight) Color.Black else Color.White,
                     tween(300, 0, LinearEasing)
                 )
             }
