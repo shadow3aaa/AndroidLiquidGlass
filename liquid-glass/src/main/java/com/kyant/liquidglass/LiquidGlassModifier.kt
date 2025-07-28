@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawscope.translate
@@ -41,33 +42,39 @@ import kotlinx.coroutines.launch
 
 fun Modifier.liquidGlass(
     state: LiquidGlassProviderState,
-    style: () -> GlassStyle
-): Modifier =
-    this
-        .then(GlassShapeElement(style = style))
-        .then(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                LiquidGlassElement(
-                    state = state,
-                    style = style,
-                    luminanceSampler = null
-                ) then GlassBrushElement(
-                    style = style
-                ) then GlassHighlightElement(
-                    style = style
-                )
-            } else {
-                Modifier
-            }
-        )
-
-fun Modifier.liquidGlass(
-    state: LiquidGlassProviderState,
-    style: GlassStyle
+    style: GlassStyle,
+    compositingStrategy: CompositingStrategy = CompositingStrategy.Offscreen
 ): Modifier =
     this.liquidGlass(
         state = state,
         luminanceSampler = null,
+        compositingStrategy = compositingStrategy,
+        style = { style }
+    )
+
+fun Modifier.liquidGlass(
+    state: LiquidGlassProviderState,
+    compositingStrategy: CompositingStrategy = CompositingStrategy.Offscreen,
+    style: () -> GlassStyle
+): Modifier =
+    this.liquidGlass(
+        state = state,
+        luminanceSampler = null,
+        compositingStrategy = compositingStrategy,
+        style = style
+    )
+
+@ExperimentalLuminanceSamplerApi
+fun Modifier.liquidGlass(
+    state: LiquidGlassProviderState,
+    style: GlassStyle,
+    compositingStrategy: CompositingStrategy = CompositingStrategy.Offscreen,
+    luminanceSampler: LuminanceSampler? = null
+): Modifier =
+    this.liquidGlass(
+        state = state,
+        luminanceSampler = luminanceSampler,
+        compositingStrategy = compositingStrategy,
         style = { style }
     )
 
@@ -75,10 +82,16 @@ fun Modifier.liquidGlass(
 fun Modifier.liquidGlass(
     state: LiquidGlassProviderState,
     luminanceSampler: LuminanceSampler? = null,
+    compositingStrategy: CompositingStrategy = CompositingStrategy.Offscreen,
     style: () -> GlassStyle
 ): Modifier =
     this
-        .then(GlassShapeElement(style = style))
+        .then(
+            GlassShapeElement(
+                style = style,
+                compositingStrategy = compositingStrategy
+            )
+        )
         .then(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 LiquidGlassElement(
@@ -94,18 +107,6 @@ fun Modifier.liquidGlass(
                 Modifier
             }
         )
-
-@ExperimentalLuminanceSamplerApi
-fun Modifier.liquidGlass(
-    state: LiquidGlassProviderState,
-    style: GlassStyle,
-    luminanceSampler: LuminanceSampler? = null
-): Modifier =
-    this.liquidGlass(
-        state = state,
-        luminanceSampler = luminanceSampler,
-        style = { style }
-    )
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class LiquidGlassElement(

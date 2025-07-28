@@ -2,6 +2,7 @@ package com.kyant.liquidglass
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -15,20 +16,22 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 
 internal class GlassShapeElement(
-    val style: () -> GlassStyle
+    val style: () -> GlassStyle,
+    val compositingStrategy: CompositingStrategy
 ) : ModifierNodeElement<GlassShapeNode>() {
 
     override fun create(): GlassShapeNode {
-        return GlassShapeNode(style)
+        return GlassShapeNode(style, compositingStrategy)
     }
 
     override fun update(node: GlassShapeNode) {
-        node.update(style)
+        node.update(style, compositingStrategy)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "glassShape"
         properties["style"] = style
+        properties["compositingStrategy"] = compositingStrategy
     }
 
     override fun equals(other: Any?): Boolean {
@@ -36,17 +39,21 @@ internal class GlassShapeElement(
         if (other !is GlassShapeElement) return false
 
         if (style != other.style) return false
+        if (compositingStrategy != other.compositingStrategy) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return style.hashCode()
+        var result = style.hashCode()
+        result = 31 * result + compositingStrategy.hashCode()
+        return result
     }
 }
 
 internal class GlassShapeNode(
-    var style: () -> GlassStyle
+    var style: () -> GlassStyle,
+    var compositingStrategy: CompositingStrategy
 ) : LayoutModifierNode, ObserverModifierNode, Modifier.Node() {
 
     override val shouldAutoInvalidate: Boolean = false
@@ -62,6 +69,7 @@ internal class GlassShapeNode(
     private val layerBlock: GraphicsLayerScope.() -> Unit = {
         clip = true
         shape = this@GlassShapeNode.shape
+        compositingStrategy = this@GlassShapeNode.compositingStrategy
     }
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
@@ -81,11 +89,16 @@ internal class GlassShapeNode(
     }
 
     fun update(
-        style: () -> GlassStyle
+        style: () -> GlassStyle,
+        compositingStrategy: CompositingStrategy
     ) {
         if (this.style != style) {
             this.style = style
             updateShape()
+        }
+        if (this.compositingStrategy != compositingStrategy) {
+            this.compositingStrategy = compositingStrategy
+            invalidateLayer()
         }
     }
 
