@@ -4,11 +4,13 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastCoerceIn
 
 @ExperimentalLuminanceSamplerApi
+@Stable
 class ContinuousLuminanceSampler(
     initialLuminance: Float = 0.5f,
     durationMillis: Long = 300L,

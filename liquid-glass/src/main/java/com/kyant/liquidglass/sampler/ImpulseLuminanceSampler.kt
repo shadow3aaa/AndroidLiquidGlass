@@ -1,6 +1,7 @@
 package com.kyant.liquidglass.sampler
 
 import android.graphics.Bitmap
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @ExperimentalLuminanceSamplerApi
+@Stable
 class ImpulseLuminanceSampler(
     initialLuminance: Float = 0.5f,
     override val sampleIntervalMillis: Long = 300L,
