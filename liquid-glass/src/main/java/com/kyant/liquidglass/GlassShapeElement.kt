@@ -2,7 +2,6 @@ package com.kyant.liquidglass
 
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -61,7 +60,6 @@ internal class GlassShapeNode(
         }
 
     private val layerBlock: GraphicsLayerScope.() -> Unit = {
-        compositingStrategy = CompositingStrategy.Offscreen
         clip = true
         shape = this@GlassShapeNode.shape
     }

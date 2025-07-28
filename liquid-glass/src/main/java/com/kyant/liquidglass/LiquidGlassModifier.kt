@@ -11,22 +11,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.draw.CacheDrawModifierNode
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
@@ -162,11 +161,11 @@ private class LiquidGlassNode(
     var state: LiquidGlassProviderState,
     var style: () -> GlassStyle,
     val luminanceSampler: LuminanceSampler?
-) : DrawModifierNode, GlobalPositionAwareModifierNode, ObserverModifierNode, Modifier.Node() {
+) : GlobalPositionAwareModifierNode, ObserverModifierNode, DelegatingNode() {
 
     override val shouldAutoInvalidate: Boolean = false
 
-    private var rect: Rect? by mutableStateOf(null)
+    private var position: Offset by mutableStateOf(Offset.Zero)
     private var graphicsLayer: GraphicsLayer? = null
     private var samplerJob: Job? = null
 
@@ -188,15 +187,14 @@ private class LiquidGlassNode(
 
     private var _renderEffect: androidx.compose.ui.graphics.RenderEffect? = null
 
-    private var _rect: Rect? = null
+    private var _position: Offset? = null
 
-    override fun ContentDrawScope.draw() {
+    private val drawNode = delegate(CacheDrawModifierNode {
         val style = currentStyle
 
-        var colorFilterChanged = false
         val colorFilter = style.material.colorFilter
-        if (_colorFilter != colorFilter) {
-            colorFilterChanged = true
+        val colorFilterChanged = _colorFilter != colorFilter
+        if (colorFilterChanged) {
             _colorFilter = colorFilter
             _colorFilterEffect =
                 if (colorFilter != null) {
@@ -233,12 +231,9 @@ private class LiquidGlassNode(
         }
         val blurRenderEffect = _blurRenderEffect
 
-        var sizeChanged = false
         val size = size
-        if (_size != size) {
-            sizeChanged = true
-            _size = size
-        }
+        val sizeChanged = _size != size
+        _size = size
 
         val cornerRadiusPx = style.shape.topStart.toPx(size, this)
         val cornerRadiusChanged = _cornerRadiusPx != cornerRadiusPx
@@ -253,6 +248,9 @@ private class LiquidGlassNode(
                     _innerRefractionAmount != innerRefractionAmount ||
                     _eccentricFactor != eccentricFactor
         if (innerRefractionChanged) {
+            _innerRefractionHeight = innerRefractionHeight
+            _innerRefractionAmount = innerRefractionAmount
+            _eccentricFactor = eccentricFactor
             _innerRefractionRenderEffect =
                 RenderEffect.createRuntimeShaderEffect(
                     refractionShader.apply {
@@ -268,7 +266,8 @@ private class LiquidGlassNode(
         }
         val innerRefractionRenderEffect = _innerRefractionRenderEffect!!
 
-        if (blurRadiusChanged || innerRefractionChanged) {
+        val renderEffectChanged = blurRadiusChanged || innerRefractionChanged
+        if (renderEffectChanged) {
             _renderEffect =
                 if (blurRenderEffect != null) {
                     RenderEffect.createChainEffect(
@@ -283,25 +282,28 @@ private class LiquidGlassNode(
         graphicsLayer?.let { layer ->
             layer.renderEffect = _renderEffect
 
-            val rect = rect!!
-            if (innerRefractionChanged || _rect != rect) {
-                _rect = rect
+            val position = position
+            if (renderEffectChanged || _position != position) {
+                _position = position
                 layer.record {
-                    translate(-rect.left, -rect.top) {
+                    translate(-position.x, -position.y) {
                         drawLayer(state.graphicsLayer)
                     }
                 }
             }
-
-            drawLayer(layer)
         }
 
-        drawContent()
-    }
+        onDrawBehind {
+            graphicsLayer?.let { layer ->
+                drawLayer(layer)
+            }
+        }
+    })
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        rect = state.rect?.let {
-            coordinates.boundsInRoot().translate(-it.topLeft)
+        if (coordinates.isAttached) {
+            val providerPosition = state.position
+            position = coordinates.positionOnScreen() - providerPosition
         }
     }
 
@@ -359,6 +361,6 @@ private class LiquidGlassNode(
 
     private fun updateStyle() {
         observeReads { currentStyle = style() }
-        invalidateDraw()
+        drawNode.invalidateDrawCache()
     }
 }

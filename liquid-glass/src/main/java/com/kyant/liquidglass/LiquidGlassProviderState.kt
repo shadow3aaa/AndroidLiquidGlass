@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -30,5 +30,5 @@ class LiquidGlassProviderState internal constructor(
     internal val graphicsLayer: GraphicsLayer
 ) {
 
-    internal var rect: Rect? by mutableStateOf(null)
+    internal var position: Offset by mutableStateOf(Offset.Zero)
 }

@@ -1,7 +1,7 @@
 package com.kyant.liquidglass.highlight
 
 import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.translate
@@ -17,10 +16,9 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
@@ -65,7 +63,7 @@ internal class GlassHighlightElement(
 
 internal class GlassHighlightNode(
     var style: () -> GlassStyle
-) : DrawModifierNode, ObserverModifierNode, Modifier.Node() {
+) : ObserverModifierNode, DelegatingNode() {
 
     override val shouldAutoInvalidate: Boolean = false
 
@@ -73,7 +71,7 @@ internal class GlassHighlightNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                drawNode.invalidateDrawCache()
             }
         }
 
@@ -81,7 +79,7 @@ internal class GlassHighlightNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                drawNode.invalidateDrawCache()
             }
         }
 
@@ -98,10 +96,9 @@ internal class GlassHighlightNode(
 
     private var _cornerRadiusPx = Float.NaN
 
-    override fun ContentDrawScope.draw() {
+    private val drawNode = delegate(CacheDrawModifierNode {
         if (highlight == GlassHighlight.None) {
-            drawContent()
-            return
+            return@CacheDrawModifierNode onDrawBehind {}
         }
 
         val size = size
@@ -156,7 +153,7 @@ internal class GlassHighlightNode(
 
                     layer.record(this, layoutDirection, size.toIntSize()) {
                         draw(
-                            this@draw,
+                            this@CacheDrawModifierNode,
                             layoutDirection,
                             drawContext.canvas,
                             drawContext.size,
@@ -172,13 +169,17 @@ internal class GlassHighlightNode(
                         }
                     }
                 }
-
-                drawLayer(layer)
             }
         }
 
-        drawContent()
-    }
+        onDrawBehind {
+            if (outline != null) {
+                graphicsLayer?.let { layer ->
+                    drawLayer(layer)
+                }
+            }
+        }
+    })
 
     override fun onObservedReadsChanged() {
         updateHighlight()

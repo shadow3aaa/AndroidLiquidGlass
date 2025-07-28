@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -69,7 +69,9 @@ internal class LiquidGlassProviderNode(
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        state.rect = coordinates.boundsInRoot()
+        if (coordinates.isAttached) {
+            state.position = coordinates.positionOnScreen()
+        }
     }
 
     fun update(
