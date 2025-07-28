@@ -23,13 +23,13 @@ fun Modifier.liquidGlassProvider(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private class LiquidGlassProviderElement(
     val state: LiquidGlassProviderState
-) : ModifierNodeElement<LiquidGlassProviderModifierNode>() {
+) : ModifierNodeElement<LiquidGlassProviderNode>() {
 
-    override fun create(): LiquidGlassProviderModifierNode {
-        return LiquidGlassProviderModifierNode(state = state)
+    override fun create(): LiquidGlassProviderNode {
+        return LiquidGlassProviderNode(state = state)
     }
 
-    override fun update(node: LiquidGlassProviderModifierNode) {
+    override fun update(node: LiquidGlassProviderNode) {
         node.update(state = state)
     }
 
@@ -53,7 +53,7 @@ private class LiquidGlassProviderElement(
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal class LiquidGlassProviderModifierNode(
+internal class LiquidGlassProviderNode(
     var state: LiquidGlassProviderState
 ) : DrawModifierNode, GlobalPositionAwareModifierNode, Modifier.Node() {
 

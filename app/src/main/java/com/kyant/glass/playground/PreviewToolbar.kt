@@ -16,6 +16,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,10 +28,10 @@ import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.glass.R
-import com.kyant.liquidglass.GlassMaterial
+import com.kyant.liquidglass.GlassStyle
 import com.kyant.liquidglass.LiquidGlassProviderState
-import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.liquidGlass
+import com.kyant.liquidglass.material.GlassMaterial
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,10 +42,12 @@ fun PreviewToolbar(
 ) {
     val scope = rememberCoroutineScope()
 
-    val iconButtonLiquidGlassStyle = remember {
-        LiquidGlassStyle(
+    val iconButtonGlassStyle = remember {
+        GlassStyle(
             CornerShape.full,
-            material = GlassMaterial(whitePoint = -0.5f)
+            material = GlassMaterial(
+                brush = SolidColor(Color.Black.copy(alpha = 0.3f))
+            )
         )
     }
 
@@ -55,7 +58,7 @@ fun PreviewToolbar(
     ) {
         IconButton(
             { scope.launch { state.reset() } },
-            Modifier.liquidGlass(providerState, iconButtonLiquidGlassStyle),
+            Modifier.liquidGlass(providerState, iconButtonGlassStyle),
             sizes = IconButtonSizes.medium,
             colors = IconButtonColors.tonal(
                 containerColor = primary.copy(alpha = 0.6f),
@@ -79,14 +82,7 @@ fun PreviewToolbar(
             ) {
                 IconButton(
                     { state.displayControls = !state.displayControls },
-                    Modifier.liquidGlass(
-                        providerState,
-                        iconButtonLiquidGlassStyle.copy(
-                            material = GlassMaterial(
-                                whitePoint = if (state.displayControls) 0.5f else -0.5f
-                            )
-                        )
-                    ),
+                    Modifier.liquidGlass(providerState, iconButtonGlassStyle),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
                         containerColor = Color.Transparent,
@@ -106,7 +102,7 @@ fun PreviewToolbar(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Colors },
-                    Modifier.liquidGlass(providerState, iconButtonLiquidGlassStyle),
+                    Modifier.liquidGlass(providerState, iconButtonGlassStyle),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
                         containerColor = Color.Transparent,
@@ -120,7 +116,7 @@ fun PreviewToolbar(
                 }
                 IconButton(
                     { state.configurationMode = ConfigurationMode.Advanced },
-                    Modifier.liquidGlass(providerState, iconButtonLiquidGlassStyle),
+                    Modifier.liquidGlass(providerState, iconButtonGlassStyle),
                     sizes = IconButtonSizes.medium,
                     colors = IconButtonColors.tonal(
                         containerColor = Color.Transparent,
@@ -151,7 +147,7 @@ fun PreviewToolbar(
                     )
                 )
             },
-            Modifier.liquidGlass(providerState, iconButtonLiquidGlassStyle),
+            Modifier.liquidGlass(providerState, iconButtonGlassStyle),
             sizes = IconButtonSizes.medium,
             colors = IconButtonColors.tonal(
                 containerColor = primary.copy(alpha = 0.6f),

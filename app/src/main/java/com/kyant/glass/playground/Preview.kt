@@ -152,53 +152,6 @@ fun Preview() {
                     clip = true
                     shape = RoundedRectangle(state.cornerRadius.value)
                 }
-                .graphicsLayer { // white point & chroma boost
-                    val contrast = state.contrast.value
-                    val whitePoint = state.whitePoint.value
-                    val chromaMultiplier = state.chromaMultiplier.value
-
-                    if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
-                        renderEffect = RenderEffect.createRuntimeShaderEffect(
-                            RuntimeShader(
-                                """
-    uniform shader image;
-    
-    uniform float contrast;
-    uniform float whitePoint;
-    uniform float chromaMultiplier;
-    
-    $colorShaderUtils
-    
-    half4 saturateColor(half4 color, float amount) {
-        half3 linearSrgb = toLinearSrgb(color.rgb);
-        float y = dot(linearSrgb, rgbToY);
-        half3 gray = half3(y);
-        half3 adjustedLinearSrgb = mix(gray, linearSrgb, amount);
-        half3 adjustedSrgb = fromLinearSrgb(adjustedLinearSrgb);
-        return half4(adjustedSrgb, color.a);
-    }
-    
-    half4 main(float2 coord) {
-        half4 color = image.eval(coord);
-        
-        color = saturateColor(color, chromaMultiplier);
-        
-        float3 target = (whitePoint > 0.0) ? float3(1.0) : float3(0.0);
-        color.rgb = mix(color.rgb, target, abs(whitePoint));
-        
-        color.rgb = (color.rgb - 0.5) * (1.0 + contrast) + 0.5;
-        
-        return color;
-    }"""
-                            ).apply {
-                                setFloatUniform("contrast", contrast)
-                                setFloatUniform("whitePoint", whitePoint)
-                                setFloatUniform("chromaMultiplier", chromaMultiplier)
-                            },
-                            "image"
-                        ).asComposeRenderEffect()
-                    }
-                }
                 .graphicsLayer { // dispersion effect
                     renderEffect = RenderEffect.createRuntimeShaderEffect(
                         RuntimeShader(
@@ -409,6 +362,53 @@ fun Preview() {
                                 blurRadiusPx,
                                 Shader.TileMode.CLAMP
                             ).asComposeRenderEffect()
+                    }
+                }
+                .graphicsLayer { // white point & chroma boost
+                    val contrast = state.contrast.value
+                    val whitePoint = state.whitePoint.value
+                    val chromaMultiplier = state.chromaMultiplier.value
+
+                    if (contrast != 0f || whitePoint != 0f || chromaMultiplier != 1f) {
+                        renderEffect = RenderEffect.createRuntimeShaderEffect(
+                            RuntimeShader(
+                                """
+    uniform shader image;
+    
+    uniform float contrast;
+    uniform float whitePoint;
+    uniform float chromaMultiplier;
+    
+    $colorShaderUtils
+    
+    half4 saturateColor(half4 color, float amount) {
+        half3 linearSrgb = toLinearSrgb(color.rgb);
+        float y = dot(linearSrgb, rgbToY);
+        half3 gray = half3(y);
+        half3 adjustedLinearSrgb = mix(gray, linearSrgb, amount);
+        half3 adjustedSrgb = fromLinearSrgb(adjustedLinearSrgb);
+        return half4(adjustedSrgb, color.a);
+    }
+    
+    half4 main(float2 coord) {
+        half4 color = image.eval(coord);
+        
+        color = saturateColor(color, chromaMultiplier);
+        
+        float3 target = (whitePoint > 0.0) ? float3(1.0) : float3(0.0);
+        color.rgb = mix(color.rgb, target, abs(whitePoint));
+        
+        color.rgb = (color.rgb - 0.5) * (1.0 + contrast) + 0.5;
+        
+        return color;
+    }"""
+                            ).apply {
+                                setFloatUniform("contrast", contrast)
+                                setFloatUniform("whitePoint", whitePoint)
+                                setFloatUniform("chromaMultiplier", chromaMultiplier)
+                            },
+                            "image"
+                        ).asComposeRenderEffect()
                     }
                 }
                 .drawBehind {

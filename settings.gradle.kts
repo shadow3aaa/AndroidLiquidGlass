@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "Glass"
 include(":app")
 include(":liquid-glass")
+include(":glassmusic")

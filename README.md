@@ -2,13 +2,16 @@
 
 Apple's Liquid Glass effect for Android Jetpack Compose.
 
-Check the [demo app](./app/release/app-release.apk), Android 13 and above is required.
+## Demos
+
+- [Playground app](./app/release/app-release.apk), Android 13 and above is required.
 
 ![](./artworks/features.jpg)
 
-Here is a screenshot of a music player demo
+- [Music player demo](./glassmusic/release/glassmusic-release.apk) that integrates **liquid bottom tabs and dynamic
+  glass**.
 
-<img alt="Music player demo" height="400" src="./artworks/music_player_demo.png"/>
+<img alt="Music player demo" height="400" src="./artworks/glass_music.png"/>
 
 ## Library
 
@@ -44,16 +47,16 @@ Box(Modifier.liquidGlassProvider(providerState))
 Box(
     Modifier.liquidGlass(
         providerState,
-        LiquidGlassStyle(
-            shape = CornerShape.large,
+        GlassStyle(
+            shape = RoundedCornerShape(16.dp),
             innerRefraction = InnerRefraction(
-                height = RefractionValue(8.dp),
-                amount = RefractionValue((-16).dp)
+                height = RefractionHeight(8.dp),
+                amount = RefractionAmount((-16).dp)
             ),
             material = GlassMaterial(
                 blurRadius = 8.dp,
-                whitePoint = 0.1f,
-                chromaMultiplier = 1.5f
+                brush = SolidColor(Color.White),
+                alpha = 0.3f
             )
         )
     )
@@ -78,26 +81,6 @@ Box {
     LiquidGlass(providerState) {}
 }
 ```
-
-## Glass parameters
-
-|        Parameter        | Availability | Verification |
-|:-----------------------:|--------------|--------------|
-| Inner refraction height | ✔️           | ✔️           |
-| Inner refraction amount | ✔️           | ✔️           |
-| Outer refraction height | ❌            | ❌            |
-| Outer refraction amount | ❌            | ❌            |
-|      Bleed amount       | ✔️           | ❌            |
-|    Bleed blur radius    | ✔️           | -            |
-|      Bleed opacity      | ✔️           | ❌            |
-|       Blur radius       | ✔️           | -            |
-
-Other extensions:
-
-- Highlight (border) width, angle, decay
-- Contrast, white point, chroma multiplier
-- Eccentric factor
-- Dispersion height (🚧)
 
 ## Comparisons
 

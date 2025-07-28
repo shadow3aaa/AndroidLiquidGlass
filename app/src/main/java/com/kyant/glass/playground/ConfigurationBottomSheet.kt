@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,19 +22,19 @@ import com.kyant.expressa.components.button.Button
 import com.kyant.expressa.components.button.ButtonColors
 import com.kyant.expressa.components.iconbutton.IconButton
 import com.kyant.expressa.components.iconbutton.IconButtonColors
-import com.kyant.expressa.m3.LocalColorScheme
 import com.kyant.expressa.m3.motion.MotionScheme
 import com.kyant.expressa.m3.shape.CornerShape
 import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.Icon
 import com.kyant.expressa.ui.Text
 import com.kyant.glass.R
-import com.kyant.liquidglass.GlassMaterial
-import com.kyant.liquidglass.InnerRefraction
+import com.kyant.liquidglass.GlassStyle
 import com.kyant.liquidglass.LiquidGlassProviderState
-import com.kyant.liquidglass.LiquidGlassStyle
-import com.kyant.liquidglass.RefractionValue
 import com.kyant.liquidglass.liquidGlass
+import com.kyant.liquidglass.material.GlassMaterial
+import com.kyant.liquidglass.refraction.InnerRefraction
+import com.kyant.liquidglass.refraction.RefractionAmount
+import com.kyant.liquidglass.refraction.RefractionHeight
 
 @Composable
 fun ConfigurationBottomSheet(
@@ -45,22 +46,20 @@ fun ConfigurationBottomSheet(
     CompositionLocalProvider(
         // LocalLiquidGlassProviderState provides providerState
     ) {
-        val isDark = LocalColorScheme.current.isDark
         Column(
             modifier
                 // .liquidGlassProvider(providerState)
                 .liquidGlass(
                     providerState,
-                    LiquidGlassStyle(
+                    GlassStyle(
                         shape = CornerShape.extraLarge,
                         innerRefraction = InnerRefraction(
-                            height = RefractionValue(24.dp),
-                            amount = RefractionValue((-64).dp)
+                            height = RefractionHeight(24.dp),
+                            amount = RefractionAmount((-64).dp)
                         ),
                         material = GlassMaterial(
                             blurRadius = 8.dp,
-                            tint = surface.copy(alpha = 0.6f),
-                            whitePoint = if (isDark) -0.25f else 0.25f
+                            brush = SolidColor(surface.copy(alpha = 0.3f))
                         )
                     )
                 )
@@ -90,7 +89,7 @@ fun ConfigurationBottomSheet(
 
                 IconButton(
                     { state.configurationMode = null },
-                    Modifier.liquidGlass(providerState, LiquidGlassStyle(CornerShape.full)),
+                    Modifier.liquidGlass(providerState, GlassStyle(CornerShape.full)),
                     colors = IconButtonColors.tonal(
                         containerColor = primaryContainer.copy(alpha = 0.85f)
                     )
@@ -143,7 +142,7 @@ fun ConfigurationBottomSheet(
                     ConfigurationMode.Advanced -> {
                         Button(
                             { state.unsafeMode = !state.unsafeMode },
-                            Modifier.liquidGlass(providerState, LiquidGlassStyle(CornerShape.full)),
+                            Modifier.liquidGlass(providerState, GlassStyle(CornerShape.full)),
                             colors = ButtonColors.filled(
                                 containerColor = primary.copy(alpha = 0.85f)
                             )

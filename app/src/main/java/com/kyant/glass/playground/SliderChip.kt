@@ -1,7 +1,6 @@
 package com.kyant.glass.playground
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -25,9 +24,10 @@ import com.kyant.expressa.prelude.*
 import com.kyant.expressa.ui.LocalTextStyle
 import com.kyant.expressa.ui.ProvideTextStyle
 import com.kyant.expressa.ui.Text
+import com.kyant.liquidglass.GlassStyle
 import com.kyant.liquidglass.LiquidGlassProviderState
-import com.kyant.liquidglass.LiquidGlassStyle
 import com.kyant.liquidglass.liquidGlass
+import com.kyant.liquidglass.material.GlassMaterial
 
 @Composable
 fun <T : Comparable<T>> SliderChip(
@@ -48,13 +48,15 @@ fun <T : Comparable<T>> SliderChip(
         modifier
             .liquidGlass(
                 providerState,
-                LiquidGlassStyle(CornerShape.extraLarge)
+                GlassStyle(
+                    CornerShape.full,
+                    material = GlassMaterial(
+                        brush = SolidColor(surfaceBright.copy(alpha = 0.6f))
+                    )
+                )
             )
-            .clip(CornerShape.full)
-            .background(surfaceBright.copy(alpha = 0.85f))
             .drawBehind {
                 if (value.isValid) {
-                    // drawRect(containerColor)
                     drawRect(
                         if (value.isSafe) sliderColor else unsafeColors.accentContainer,
                         topLeft =

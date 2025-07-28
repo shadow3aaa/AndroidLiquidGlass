@@ -1,9 +1,10 @@
-package com.kyant.liquidglass
+package com.kyant.liquidglass.highlight
 
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import android.os.Build
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
@@ -12,10 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.liquidglass.utils.GlassShaders
 import kotlin.math.PI
 
+/**
+ * The highlight effect applied to the liquid glass.
+ */
 @Immutable
-sealed interface GlassBorder {
+sealed interface GlassHighlight {
 
     val width: Dp
 
@@ -24,12 +29,15 @@ sealed interface GlassBorder {
     val blendMode: BlendMode
 
     @Stable
-    fun createRenderEffect(density: Density, size: Size, cornerRadius: Float): RenderEffect? {
+    fun createRenderEffect(size: Size, density: Density, cornerRadius: Float): RenderEffect? {
         return null
     }
 
+    /**
+     * A no-op highlight effect.
+     */
     @Immutable
-    data object None : GlassBorder {
+    data object None : GlassHighlight {
 
         override val width: Dp = Dp.Unspecified
 
@@ -38,25 +46,55 @@ sealed interface GlassBorder {
         override val blendMode: BlendMode = BlendMode.SrcOver
     }
 
+    /**
+     * A solid highlight effect.
+     *
+     * @param width
+     * The width of the highlight.
+     *
+     * @param color
+     * The color of the highlight.
+     *
+     * @param blendMode
+     * The blend mode of the highlight.
+     */
     @Immutable
     data class Solid(
-        override val width: Dp = 2.dp,
+        override val width: Dp = 1.dp,
         override val color: Color = Color.White,
         override val blendMode: BlendMode = BlendMode.Overlay
-    ) : GlassBorder
+    ) : GlassHighlight
 
+    /**
+     * A dynamic highlight effect that creates a shimmering effect.
+     *
+     * @param width
+     * The width of the highlight.
+     *
+     * @param color
+     * The color of the highlight.
+     *
+     * @param blendMode
+     * The blend mode of the highlight.
+     *
+     * @param angle
+     * The angle of the highlight in degrees.
+     *
+     * @param decay
+     * The decay factor for the highlight, controlling how quickly it fades out.
+     */
     @Immutable
-    data class Highlight(
-        override val width: Dp = 2.dp,
+    data class Dynamic(
+        override val width: Dp = 1.dp,
         override val color: Color = Color.White,
         override val blendMode: BlendMode = BlendMode.Overlay,
         val angle: Float = 45f,
-        val decay: Float = 1.5f
-    ) : GlassBorder {
+        @param:FloatRange(from = 0.0) val decay: Float = 1.5f
+    ) : GlassHighlight {
 
         private var highlightShaderCache: RuntimeShader? = null
 
-        override fun createRenderEffect(density: Density, size: Size, cornerRadius: Float): RenderEffect? {
+        override fun createRenderEffect(size: Size, density: Density, cornerRadius: Float): RenderEffect? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val blurRenderEffect =
                     cachedBlurRenderEffect
@@ -67,7 +105,7 @@ sealed interface GlassBorder {
                         ).also { cachedBlurRenderEffect = it }
 
                 val highlightShader = highlightShaderCache
-                    ?: RuntimeShader(LiquidGlassShaders.highlightShaderString)
+                    ?: RuntimeShader(GlassShaders.highlightShaderString)
                         .also { highlightShaderCache = it }
 
                 val highlightRenderEffect =
@@ -99,6 +137,6 @@ sealed interface GlassBorder {
     companion object {
 
         @Stable
-        val Default: Highlight = Highlight()
+        val Default: Dynamic = Dynamic()
     }
 }
