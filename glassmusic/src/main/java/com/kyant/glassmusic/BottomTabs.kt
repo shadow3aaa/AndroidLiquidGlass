@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -28,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,9 +62,6 @@ import com.kyant.liquidglass.rememberLiquidGlassProviderState
 import com.kyant.liquidglass.sampler.ContinuousLuminanceSampler
 import com.kyant.liquidglass.sampler.ExperimentalLuminanceSamplerApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -83,26 +78,25 @@ fun <T> BottomTabs(
     content: BottomTabsScope.(tab: T) -> BottomTabsScope.BottomTab
 ) {
     val bottomTabsLiquidGlassProviderState = rememberLiquidGlassProviderState(null)
-    val luminanceSampler = remember { ContinuousLuminanceSampler() }
 
+    val animationScope = rememberCoroutineScope()
     val initialContentColor = onSurface
     val contentColor = remember { Animatable(initialContentColor) }
-    LaunchedEffect(luminanceSampler) {
-        snapshotFlow { luminanceSampler.luminance.pow(2f) }
-            .map { luminance -> luminance > 0.5f }
-            .distinctUntilChanged()
-            .collectLatest { isLight ->
+    val luminanceSampler = remember {
+        ContinuousLuminanceSampler { animationSpec, luminance ->
+            val isLight = luminance.pow(2f) > 0.5f
+            animationScope.launch {
                 contentColor.animateTo(
                     if (isLight) Color.Black else Color.White,
                     tween(300, 0, LinearEasing)
                 )
             }
+        }
     }
 
     val scope = remember { BottomTabsScope() }
 
     val density = LocalDensity.current
-    val animationScope = rememberCoroutineScope()
     var isDragging by remember { mutableStateOf(false) }
     val offset = remember { Animatable(0f) }
 

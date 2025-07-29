@@ -15,7 +15,7 @@ Apple's Liquid Glass effect for Android Jetpack Compose.
 
 ## Library
 
-The library is in alpha stage, every API may be changed, use it on your own risk.
+⚠️ The library is in alpha stage, every API may be changed, use it on your own risk.
 
 ### Add to project
 
@@ -65,6 +65,8 @@ Box(
 
 #### [Experimental] Dynamically adjusted tint by luminance behind the glass
 
+⚠️ The API is likely to change in the future.
+
 ```kotlin
 val luminanceSampler = remember { ContinuousLuminanceSampler() }
 
@@ -84,9 +86,9 @@ liquidGlass(
 }
 ```
 
-See [here](./glassmusic/src/main/java/com/kyant/glassmusic/BottomTabs.kt#L129) for more details.
+See [here](./glassmusic/src/main/java/com/kyant/glassmusic/BottomTabs.kt#L123) for more details.
 
-### Limitations
+### Tips
 
 The following case is not supported:
 

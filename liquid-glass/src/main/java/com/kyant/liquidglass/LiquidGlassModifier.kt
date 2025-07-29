@@ -323,10 +323,10 @@ private class LiquidGlassNode(
             samplerJob =
                 coroutineScope.launch {
                     while (isActive) {
-                        delay(sampler.sampleIntervalMillis)
                         graphicsLayer?.let { layer ->
                             sampler.sample(layer)
                         }
+                        delay(sampler.sampleIntervalMillis)
                     }
                 }
         }

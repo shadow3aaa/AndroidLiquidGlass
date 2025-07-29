@@ -11,5 +11,5 @@ interface LuminanceSampler {
     @get:FloatRange(from = 0.0, to = 1.0)
     val luminance: Float
 
-    suspend fun sample(graphicsLayer: GraphicsLayer): Float
+    suspend fun sample(graphicsLayer: GraphicsLayer)
 }

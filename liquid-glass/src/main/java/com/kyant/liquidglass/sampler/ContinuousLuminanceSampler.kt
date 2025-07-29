@@ -2,7 +2,9 @@ package com.kyant.liquidglass.sampler
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -12,14 +14,14 @@ import androidx.compose.ui.util.fastCoerceIn
 @ExperimentalLuminanceSamplerApi
 @Stable
 class ContinuousLuminanceSampler(
-    initialLuminance: Float = 0.5f,
     durationMillis: Long = 300L,
     easing: Easing = LinearEasing,
     val precision: Float = 0.25f,
-    val scaledSize: IntSize = IntSize(5, 5)
+    val scaledSize: IntSize = IntSize(5, 5),
+    val onAnimateToLuminance: ((animationSpec: FiniteAnimationSpec<Float>, luminance: Float) -> Unit)? = null
 ) : LuminanceSampler {
 
-    private val luminanceAnimation = Animatable(initialLuminance)
+    private val luminanceAnimation = Animatable(0f)
 
     private val animationSpec =
         tween<Float>(durationMillis.toInt(), 0, easing)
@@ -27,19 +29,29 @@ class ContinuousLuminanceSampler(
     override val sampleIntervalMillis: Long = 0L
 
     override val luminance: Float
-        get() = luminanceAnimation.value
+        get() = luminanceAnimation.value.fastCoerceIn(0f, 1f)
 
     private val impulseLuminanceSampler =
         ImpulseLuminanceSampler(
-            initialLuminance = initialLuminance,
             sampleIntervalMillis = sampleIntervalMillis,
             precision = precision,
             scaledSize = scaledSize
         )
 
-    override suspend fun sample(graphicsLayer: GraphicsLayer): Float {
-        val sampledLuminance = impulseLuminanceSampler.sample(graphicsLayer)
-        luminanceAnimation.animateTo(sampledLuminance, animationSpec)
-        return luminanceAnimation.value.fastCoerceIn(0f, 1f)
+    private var hasValidValue = false
+
+    override suspend fun sample(graphicsLayer: GraphicsLayer) {
+        impulseLuminanceSampler.sample(graphicsLayer)
+        val sampledLuminance = impulseLuminanceSampler.luminance
+        if (!sampledLuminance.isNaN()) {
+            if (hasValidValue) {
+                onAnimateToLuminance?.invoke(animationSpec, sampledLuminance)
+                luminanceAnimation.animateTo(sampledLuminance, animationSpec)
+            } else {
+                onAnimateToLuminance?.invoke(snap(), sampledLuminance)
+                luminanceAnimation.snapTo(sampledLuminance)
+                hasValidValue = true
+            }
+        }
     }
 }

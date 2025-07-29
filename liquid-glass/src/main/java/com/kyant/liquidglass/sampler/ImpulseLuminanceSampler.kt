@@ -16,24 +16,24 @@ import kotlinx.coroutines.withContext
 @ExperimentalLuminanceSamplerApi
 @Stable
 class ImpulseLuminanceSampler(
-    initialLuminance: Float = 0.5f,
     override val sampleIntervalMillis: Long = 300L,
     val precision: Float = 0.25f,
-    val scaledSize: IntSize = IntSize(5, 5)
+    val scaledSize: IntSize = IntSize(5, 5),
+    val onChangeToLuminance: ((luminance: Float) -> Unit)? = null
 ) : LuminanceSampler {
 
     private var lastSampleTimeMillis = Long.MIN_VALUE
 
-    override var luminance: Float by mutableFloatStateOf(initialLuminance)
+    override var luminance: Float by mutableFloatStateOf(Float.NaN)
         private set
 
     @Suppress("UseKtx")
-    override suspend fun sample(graphicsLayer: GraphicsLayer): Float {
+    override suspend fun sample(graphicsLayer: GraphicsLayer) {
         val currentTimeMillis = System.currentTimeMillis()
         if (currentTimeMillis - lastSampleTimeMillis < sampleIntervalMillis &&
             lastSampleTimeMillis != Long.MIN_VALUE
         ) {
-            return luminance
+            return
         }
         lastSampleTimeMillis = currentTimeMillis
 
@@ -66,6 +66,7 @@ class ImpulseLuminanceSampler(
                     ((sumLuminance / totalPixels / precision).fastRoundToInt() * precision).fastCoerceIn(0f, 1f)
                 if (!newLuminance.isNaN()) {
                     withContext(Dispatchers.Main) {
+                        onChangeToLuminance?.invoke(newLuminance)
                         luminance = newLuminance
                     }
                 }
@@ -74,7 +75,5 @@ class ImpulseLuminanceSampler(
                 bitmap.recycle()
             }
         }
-
-        return luminance
     }
 }
