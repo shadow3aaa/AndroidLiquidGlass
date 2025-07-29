@@ -113,14 +113,14 @@ iOS device: iPhone 16 Pro Max (simulator)
 
 Test glass area size: 300 x 300, corner radius: 30
 
-|                        iOS                        |                        Android                        |
-|:-------------------------------------------------:|:-----------------------------------------------------:|
-| ![](./artworks/inner_refraction/ios/-60%2020.png) | ![](./artworks/inner_refraction/android/-60%2020.png) |
+|                   iOS                    |                   Android                    |
+|:----------------------------------------:|:--------------------------------------------:|
+| ![](./artworks/ios_inner_refraction.png) | ![](./artworks/android_inner_refraction.png) |
 
 Complete comparisons:
 
-- [Inner refraction](docs/Inner%20refraction%20comparisons.md)
-- [Bleed](docs/Bleed%20comparisons.md)
+- [Inner refraction](https://github.com/Kyant0/AndroidLiquidGlass/blob/530bed05f8342bf607463a775dea93a531f73f42/docs/Inner%20refraction%20comparisons.md)
+- [Bleed](https://github.com/Kyant0/AndroidLiquidGlass/blob/530bed05f8342bf607463a775dea93a531f73f42/docs/Bleed%20comparisons.md)
 
 ## Special thanks
 
