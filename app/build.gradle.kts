@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.android.application)
@@ -45,13 +44,9 @@ android {
     }
     kotlin {
         compilerOptions {
-            apiVersion = KotlinVersion.KOTLIN_2_3
-            languageVersion = KotlinVersion.KOTLIN_2_3
             jvmTarget = JvmTarget.JVM_21
             freeCompilerArgs.addAll(
-                "-jvm-default=no-compatibility",
-                "-Xcontext-parameters",
-                "-Xcontext-sensitive-resolution",
+                "-jvm-default=no-compatibility"
             )
         }
     }
