@@ -31,7 +31,7 @@ android {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_21
             freeCompilerArgs.addAll(
-                "-jvm-default=no-compatibility"
+                "-jvm-default=no-compatibility",
             )
         }
     }

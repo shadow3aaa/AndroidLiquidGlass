@@ -53,7 +53,7 @@ private class LiquidGlassProviderElement(
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal class LiquidGlassProviderNode(
+private class LiquidGlassProviderNode(
     var state: LiquidGlassProviderState
 ) : DrawModifierNode, GlobalPositionAwareModifierNode, Modifier.Node() {
 

@@ -161,7 +161,7 @@ private class LiquidGlassElement(
 private class LiquidGlassNode(
     var state: LiquidGlassProviderState,
     var style: () -> GlassStyle,
-    val luminanceSampler: LuminanceSampler?
+    var luminanceSampler: LuminanceSampler?
 ) : GlobalPositionAwareModifierNode, ObserverModifierNode, DelegatingNode() {
 
     override val shouldAutoInvalidate: Boolean = false
@@ -183,7 +183,7 @@ private class LiquidGlassNode(
     private var _cornerRadiusPx: Float = Float.NaN
     private var _innerRefractionHeight: Float = Float.NaN
     private var _innerRefractionAmount: Float = Float.NaN
-    private var _eccentricFactor: Float = Float.NaN
+    private var _depthEffect: Float = Float.NaN
     private var _innerRefractionRenderEffect: RenderEffect? = null
 
     private var _renderEffect: androidx.compose.ui.graphics.RenderEffect? = null
@@ -242,16 +242,16 @@ private class LiquidGlassNode(
 
         val innerRefractionHeight = style.innerRefraction.height.toPx(size, this)
         val innerRefractionAmount = style.innerRefraction.amount.toPx(size, this)
-        val eccentricFactor = style.innerRefraction.eccentricFactor
+        val depthEffect = style.innerRefraction.depthEffect
         val innerRefractionChanged =
             sizeChanged || cornerRadiusChanged ||
                     _innerRefractionHeight != innerRefractionHeight ||
                     _innerRefractionAmount != innerRefractionAmount ||
-                    _eccentricFactor != eccentricFactor
+                    _depthEffect != depthEffect
         if (innerRefractionChanged) {
             _innerRefractionHeight = innerRefractionHeight
             _innerRefractionAmount = innerRefractionAmount
-            _eccentricFactor = eccentricFactor
+            _depthEffect = depthEffect
             _innerRefractionRenderEffect =
                 RenderEffect.createRuntimeShaderEffect(
                     refractionShader.apply {
@@ -260,7 +260,7 @@ private class LiquidGlassNode(
 
                         setFloatUniform("refractionHeight", innerRefractionHeight)
                         setFloatUniform("refractionAmount", innerRefractionAmount)
-                        setFloatUniform("eccentricFactor", eccentricFactor)
+                        setFloatUniform("depthEffect", depthEffect)
                     },
                     "image"
                 )
@@ -319,13 +319,13 @@ private class LiquidGlassNode(
                 compositingStrategy = androidx.compose.ui.graphics.layer.CompositingStrategy.Offscreen
             }
 
-        if (luminanceSampler != null) {
+        luminanceSampler?.let { sampler ->
             samplerJob =
                 coroutineScope.launch {
                     while (isActive) {
-                        delay(luminanceSampler.sampleIntervalMillis)
+                        delay(sampler.sampleIntervalMillis)
                         graphicsLayer?.let { layer ->
-                            luminanceSampler.sample(layer)
+                            sampler.sample(layer)
                         }
                     }
                 }
@@ -356,6 +356,7 @@ private class LiquidGlassNode(
         ) {
             this.state = state
             this.style = style
+            this.luminanceSampler = luminanceSampler
             updateStyle()
         }
     }

@@ -38,7 +38,7 @@ uniform float cornerRadius;
 
 uniform float refractionHeight;
 uniform float refractionAmount;
-uniform float eccentricFactor;
+uniform float depthEffect;
 
 $sdRectangleShaderUtils
 
@@ -61,7 +61,7 @@ half4 main(float2 coord) {
     float2 normal = gradSdRoundedRectangle(centeredCoord, halfSize, gradRadius);
     
     float refractedDistance = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
-    float2 refractedDirection = normalize(normal + eccentricFactor * normalize(centeredCoord));
+    float2 refractedDirection = normalize(normal + depthEffect * normalize(centeredCoord));
     float2 refractedCoord = coord + refractedDistance * refractedDirection;
     /*if (refractedCoord.x < 0.0 || refractedCoord.x >= size.x ||
         refractedCoord.y < 0.0 || refractedCoord.y >= size.y) {

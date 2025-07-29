@@ -18,15 +18,16 @@ import androidx.compose.ui.unit.dp
  * It is a **negative** value that determines how much the content is distorted.
  * To create a full refraction effect, use `RefractionValue.Full`.
  *
- * @param eccentricFactor
- * The shift factor for the refraction effect.
- * 0 means no shift, 1 will shift the content towards the corners.
+ * @param depthEffect
+ * The level of depth effect applied to the refraction.
+ * 0 means no depth effect, creating a flat style.
+ * 1 will shift the content towards the corners, creating a full depth effect.
  */
 @Immutable
 data class InnerRefraction(
     override val height: RefractionHeight,
     override val amount: RefractionAmount,
-    @param:FloatRange(from = 0.0, to = 1.0) val eccentricFactor: Float = 1f
+    @param:FloatRange(from = 0.0, to = 1.0) val depthEffect: Float = 1f
 ) : Refraction {
 
     companion object {
@@ -36,7 +37,7 @@ data class InnerRefraction(
             InnerRefraction(
                 height = RefractionHeight(8.dp),
                 amount = RefractionAmount((-16).dp),
-                eccentricFactor = 1f
+                depthEffect = 1f
             )
     }
 }
